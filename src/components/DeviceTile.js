@@ -12,9 +12,10 @@ import controlStyles from "../styles/controlStyles";
 const DeviceTile = ({
     id,
     type,
-    icon
+    icon,
+    on
 }) => {
-    const [checked, setChecked] = useState(true);
+    const [checked, setChecked] = useState(on);
 
     return (
         <View style={[controlStyles.tile, checked? controlStyles.tileOn:controlStyles.tileOff]}>
