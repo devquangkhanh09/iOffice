@@ -1,0 +1,35 @@
+receive
+schema data_receive: per 5 min
+schema data_receive:{
+	humd: float 
+	temp: float
+	light: float
+	fan_speed: int (0-25-50-75-100)
+	isOver: sequence 3-bit
+}
+
+###-----------------------------
+send:
+schema data_response: auto mode (after receive), manual mode (after user request)
+shema set_value: after user request
+
+schema data_response: {
+	fan_speed: int
+	//cmt relay: 0 | 1 | None
+	led: 0 | 1 (default = 1)
+	control_mode: 0 | 1
+}
+
+schema set_value: {
+	value: '${humd}-${temp}-${light}'
+	// value use for threshold : int
+}
+
+
+
+isOver: sequence 3 bits correspond humd, temp, light
+device_control: 0 (off), 1(onl)
+control_mode: 0(manual), 1(auto)
+
+isOver: over threshold, yolo handle, backend receive info
+control_mode: backend
