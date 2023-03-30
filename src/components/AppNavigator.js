@@ -17,10 +17,10 @@ const AppNavigator = () => {
         screenOptions={{ tabBarColor: "#1D192B" }}
       >
         <Tab.Screen
-          name="Home"
+          name="Homepage"
           component={HomeScreen}
           options={{
-            tabBarLabel: "Home",
+            tabBarLabel: "Homepage",
             tabBarIcon: ({ color }) => (
               <Icon name="home" size={26} color={color} />
             ),
