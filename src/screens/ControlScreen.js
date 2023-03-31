@@ -6,7 +6,7 @@ import {
     Text
 } from "@react-native-material/core";
 import styles from "../styles/styles";
-import controlStyles from "../styles/controlStyles";
+import controlStyles from "../styles/Control.styles";
 import DeviceTile from "../components/DeviceTile";
 
 const data = [

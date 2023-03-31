@@ -7,7 +7,7 @@ import {
     Icon,
     Switch
 } from "@react-native-material/core";
-import controlStyles from "../styles/controlStyles";
+import controlStyles from "../styles/Control.styles";
 
 const DeviceTile = ({
     id,

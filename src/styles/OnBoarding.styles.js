@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     navContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20
     },
     backButton: {
         paddingVertical: 15,

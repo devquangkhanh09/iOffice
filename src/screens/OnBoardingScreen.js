@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
 import { View, Text, FlatList, Animated, TouchableOpacity } from "react-native";
 import slides from "../../slides";
-import OnBoardingItem from "./OnBoarding/OnBoardingItem";
-import Paginator from "./OnBoarding/Paginator";
-import styles from "../styles/OnBoarding.style";
+import OnBoardingItem from "../components/OnBoardingItem";
+import Paginator from "../components/Paginator";
+import styles from "../styles/OnBoarding.styles";
 
-export default OnBoarding = ({ navigation }) => {
+export default OnBoardingScreen = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const slidesRef = useRef(null);
