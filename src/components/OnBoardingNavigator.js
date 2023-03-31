@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StackActions } from "@react-navigation/native";
 import OnBoardingScreen from "../screens/OnBoardingScreen";
 import AppNavigator from "./AppNavigator";
+import LogInScreen from "../screens/LogInScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +15,7 @@ const OnBoardingNavigator = () => {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
-                name="Home"
+                name="LogIn"
                 options={{
                     headerLeft: null,
                     headerShown: false
@@ -22,11 +23,11 @@ const OnBoardingNavigator = () => {
                 listeners={({ navigation }) => ({
                     beforeRemove: (e) => {
                         e.preventDefault();
-                        navigation.dispatch(StackActions.replace('Home'));
+                        navigation.dispatch(StackActions.replace('LogIn'));
                     },
                 })}
             >
-                {() => <AppNavigator />}
+                {() => <LogInScreen />}
             </Stack.Screen>
         </Stack.Navigator>
     )

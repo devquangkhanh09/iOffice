@@ -16,7 +16,7 @@ export default OnBoardingScreen = ({ navigation }) => {
       slidesRef.current.scrollToIndex({ index: nextIndex });
       setCurrentIndex(nextIndex);
     } else {
-      navigation.navigate("Home");
+      navigation.navigate("LogIn");
     }
   };
 
@@ -28,8 +28,8 @@ export default OnBoardingScreen = ({ navigation }) => {
     }
   };
 
-  const onPressGoHome = () => {
-    navigation.navigate("Home");
+  const onPressGoLogIn = () => {
+    navigation.navigate("LogIn");
   };
 
   const viewableItemsChanged = useRef(({ viewableItems }) => {
@@ -40,7 +40,7 @@ export default OnBoardingScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onPressGoHome} style={styles.skipButton}>
+      <TouchableOpacity onPress={onPressGoLogIn} style={styles.skipButton}>
         <Text style={styles.skipButton.text}>Skip</Text>
       </TouchableOpacity>
 
