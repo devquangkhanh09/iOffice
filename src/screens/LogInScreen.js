@@ -3,10 +3,23 @@ import { TextInput, IconButton } from "@react-native-material/core";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { View } from "react-native";
 import {
-    Text
+    Text,
+    Button
 } from "@react-native-material/core";
+import {
+    getAuth,
+    signInWithEmailAndPassword
+} from "firebase/auth";
 import styles from "../styles/styles";
 import logInStyles from "../styles/LogIn.styles";
+
+const login = async (email, password) => {
+    try {
+        await signInWithEmailAndPassword(getAuth(), email, password);
+    } catch (error) {
+        alert("Email/password is incorrect! Please try again.");
+    }
+}
 
 const LogInScreen = () => {
     const [email, setEmail] = useState("");
@@ -34,6 +47,7 @@ const LogInScreen = () => {
                 )}
                 style={logInStyles.textInput}
             />
+            <Button title="Log in" onPress={() => login(email, password)} />
         </View>
     )
 }
