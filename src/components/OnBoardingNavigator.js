@@ -1,5 +1,4 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StackActions } from "@react-navigation/native";
 import OnBoardingScreen from "../screens/OnBoardingScreen";
 import LogInScreen from "../screens/LogInScreen";
 
@@ -17,17 +16,11 @@ const OnBoardingNavigator = () => {
                 name="LogIn"
                 options={{
                     headerLeft: null,
-                    headerShown: false
+                    headerShown: false,
+                    gestureEnabled: false
                 }}
-                listeners={({ navigation }) => ({
-                    beforeRemove: (e) => {
-                        e.preventDefault();
-                        navigation.dispatch(StackActions.replace('LogIn'));
-                    },
-                })}
-            >
-                {() => <LogInScreen />}
-            </Stack.Screen>
+                component={LogInScreen}
+            />
         </Stack.Navigator>
     )
 }
