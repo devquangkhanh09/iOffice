@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Dimensions, Slider, Switch, Text } from "react-native";
+import { StyleSheet, View, Dimensions, Text, Pressable, Button } from "react-native";
+import {
+  Switch
+} from "@react-native-material/core";
+import Slider from "@react-native-community/slider";
 
 const { width } = Dimensions.get("window");
 
 const BottomPanel = () => {
   const [temperature, setTemperature] = useState(25);
-  const [isAuto, setIsAuto] = useState(false);
+  const [isAuto, setIsAuto] = useState(true);
 
   const handleAutoSwitchChange = (value) => {
     setIsAuto(value);
@@ -18,17 +22,16 @@ const BottomPanel = () => {
   return (
     <View style={styles.bottomPanel}>
       
-      <View style={styles.switchContainer}>
-        <Switch
-          style={styles.switch}
-          value={isAuto}
-          onValueChange={handleAutoSwitchChange}
-        />
-      </View>
+      <Switch
+        style={styles.switch}
+        value={isAuto}
+        onValueChange={() => setIsAuto(!isAuto)}
+      />
 
       <View style={styles.temperatureContainer}>
         <Text style={styles.temperatureText}>Temperature</Text>
         <Slider
+          
           style={styles.slider}
           minimumValue={18}
           maximumValue={30}
@@ -70,18 +73,19 @@ const styles = StyleSheet.create({
   slider: {
     flex: 1,
     top: 34,
+    width: "80%"
   },
   switchContainer: {
     // justifyContent: "center",
     // alignItems: "flex-end",
     // position: 'relative',
-    left: 200,
+    left: 250,
     top: 5,
   },
   switch: {
     // position: 'relative',
     right: 0,
-    top: 0,
+    top: 5
   },
 });
 
