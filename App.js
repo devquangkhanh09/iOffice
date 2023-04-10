@@ -11,15 +11,24 @@ import {
 } from "firebase/auth";
 import OnBoardingNavigator from "./src/components/OnBoardingNavigator";
 import AppNavigator from "./src/components/AppNavigator";
+import { storeData, getData, removeData } from "./src/services/asyncStorage";
 
 export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    if (!user) getData("user").then(userFromStorage => setUser(userFromStorage));
+
     onAuthStateChanged(getAuth(), (user) => {
-      if (user) setUser(user);
-      else setUser(null);
-    })
+      if (user) {
+        storeData("user", user);
+        setUser(user);
+      }
+      else {
+        removeData("user");
+        setUser(null);
+      };
+    });
   }, []);
 
   return (

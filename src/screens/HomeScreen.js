@@ -1,21 +1,3 @@
-// import {
-//     View,
-// } from "react-native";
-// import {
-//     Text
-// } from "@react-native-material/core";
-// import styles from "../styles/styles";
-
-// const HomeScreen = () => {
-//     return (
-//         <View style={styles.screen}>
-//             <Text variant="h3" style={styles.title}>Home</Text>
-//         </View>
-//     );
-// }
-
-// export default HomeScreen;
-
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -26,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import BottomPanel from "../components/BottomPanel";
+import "../services/client";
 
 const { width, height } = Dimensions.get("window");
 
