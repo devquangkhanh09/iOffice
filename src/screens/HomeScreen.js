@@ -8,7 +8,6 @@ import {
   Dimensions,
 } from "react-native";
 import BottomPanel from "../components/BottomPanel";
-import "../services/client";
 
 const { width, height } = Dimensions.get("window");
 
