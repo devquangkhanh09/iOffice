@@ -29,6 +29,9 @@ const dashboardStyles = StyleSheet.create({
     selectionTextSelected: {
         color: "#fafbfc",
     },
+    chart: {
+        paddingHorizontal: 0,
+    },
 });
 
 export default dashboardStyles;
