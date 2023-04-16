@@ -25,8 +25,8 @@ export default function App() {
         setUser(user);
       }
       else {
-        removeData("user");
-        setUser(null);
+        // removeData("user");
+        // setUser(null);
       };
     });
   }, []);

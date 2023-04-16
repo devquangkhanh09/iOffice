@@ -12,6 +12,7 @@ import {
     baseUrl,
     getClient
 } from "../services/client";
+import { getData } from "../services/asyncStorage";
 import { AIO_KEY } from "@env";
 import Slider from "@react-native-community/slider";
 import controlStyles from "../styles/Control.styles";
@@ -23,32 +24,33 @@ const ComplexDeviceTile = ({
 }) => {
     const [isOn, setIsOn] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
-    const [valueSlider, setValueSlider] = useState(0);
+    const [levelSlider, setlevelSlider] = useState(0);
+    const [user, setUser] = useState(null);
 
     const client = getClient(`/${prefixControlFeed}${type.toLowerCase()}`);
-    const publish = () => {
-        client.publish(`${prefixControlFeed}${type.toLowerCase()}`, JSON.stringify({
-            status: isOn,
-            mode: isAuto? "auto":"manual",
-            value: valueSlider,
-            // TODO: get current username
-            user: "Steve",
+    const publish = (data) => {
+        const dataPublish = JSON.stringify({
+            ...data,
+            user: user.email,
             timestamp: new Date()
-        }));
+        });
+
+        client.publish(`${prefixControlFeed}${type.toLowerCase()}`, dataPublish);
     };
 
     useEffect(() => {
-        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data`, {
+        getData("user").then((user) => setUser(user));
+        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data/last`, {
             method: "GET",
             headers: {
                 "X-AIO-Key": AIO_KEY
             }
         }).then((res) => res.json()).then((data) => {
-            if (data.length > 0) {
-                const { status, mode, value } = JSON.parse(data[0].value);
+            if (data.value) {
+                const { status, mode, level } = JSON.parse(data.value);
                 setIsOn(status);
                 setIsAuto(mode === "auto");
-                setValueSlider(value);
+                setlevelSlider(level);
             }
         });
     }, []);
@@ -69,8 +71,12 @@ const ComplexDeviceTile = ({
                         isOn? "On":"Off"
                     }</Text>
                     <Switch value={isOn} onValueChange={() => {
+                        publish({
+                            status: !isOn,
+                            level: levelSlider,
+                            mode: isAuto? "auto":"manual",
+                        });
                         setIsOn(!isOn);
-                        publish();
                     }} />
                 </View>
 
@@ -79,14 +85,18 @@ const ComplexDeviceTile = ({
                         isAuto? "Auto":"Manual"
                     }</Text>
                     <Switch value={isAuto} onValueChange={() => {
+                        publish({
+                            status: isOn,
+                            level: levelSlider,
+                            mode: !isAuto? "auto":"manual",
+                        });
                         setIsAuto(!isAuto);
-                        publish();
                     }} disabled={!isOn} />
                 </View>
             </View>
 
             <View style={controlStyles.row}>
-                <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>Value</Text>
+                <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>Level</Text>
                 <Slider
                     style={controlStyles.slider}
                     minimumValue={0}
@@ -94,10 +104,14 @@ const ComplexDeviceTile = ({
                     maximumValue={4}
                     maximumTrackTintColor={isOn? "#cfcdcc":"white"}
                     step={1}
-                    value={valueSlider}
+                    value={levelSlider}
                     onValueChange={(value) => {
-                        setValueSlider(value);
-                        publish();
+                        publish({
+                            status: isOn,
+                            level: value,
+                            mode: isAuto? "auto":"manual",
+                        });
+                        setlevelSlider(value);
                     }}
                     disabled={!isOn || isAuto}
                 />

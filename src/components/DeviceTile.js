@@ -13,6 +13,7 @@ import {
     baseUrl,
     getClient
 } from "../services/client";
+import { getData } from "../services/asyncStorage";
 import { AIO_KEY } from "@env";
 
 const DeviceTile = ({
@@ -21,17 +22,19 @@ const DeviceTile = ({
     icon,
 }) => {
     const [isOn, setIsOn] = useState(false);
+    const [user, setUser] = useState(null);
 
     const client = getClient(`/${prefixControlFeed}${type.toLowerCase()}`);
 
     useEffect(() => {
-        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data`, {
+        getData("user").then((user) => setUser(user));
+        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data/last`, {
             method: "GET",
             headers: {
                 "X-AIO-Key": AIO_KEY
             }
         }).then((res) => res.json()).then((data) => {
-            if (data.length > 0) setIsOn(JSON.parse(data[0].value).status);
+            if (data.value) setIsOn(JSON.parse(data.value).status);
         }).catch((e) => console.log(e));
     }, []);
 
@@ -49,13 +52,13 @@ const DeviceTile = ({
                     isOn? "On":"Off"
                 }</Text>
                 <Switch value={isOn} onValueChange={async () => {
-                    setIsOn(!isOn);
                     client.publish(`${prefixControlFeed}${type.toLowerCase()}`, JSON.stringify({
-                        status: isOn,
+                        status: !isOn,
                         // TODO: get current username
-                        user: "Steve",
+                        user: user.email,
                         timestamp: new Date()
                     }));
+                    setIsOn(!isOn);
                 }} />
             </View>
         </View>
