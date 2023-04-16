@@ -8,22 +8,31 @@ import DashboardScreen from "../screens/DashboardScreen";
 import LogScreen from "../screens/LogScreen";
 import LoadingScreen from "../screens/LoadingScreen";
 import { Icon } from "@react-native-material/core";
-import connect from "../services/client";
+import { connect } from "../services/client";
 
 const Tab = createMaterialBottomTabNavigator();
+const feeds = [
+  "/metacrektal/feeds/iot-control.control-led",
+  "/metacrektal/feeds/iot-control.control-relay",
+  "/metacrektal/feeds/iot-control.control-fan",
+  "/metacrektal/feeds/iot-data.data-temp",
+  "/metacrektal/feeds/iot-data.data-humid",
+  "/metacrektal/feeds/iot-data.data-light",
+];
 
 const AppNavigator = () => {
-    const [client, setClient] = useState(null);
+    const [currentFeeds, setCurrentFeeds] = useState([]);
 
     useEffect(() => {
-        if (!client) 
-          connect("/metacrektal/feeds/iot-control.control-led")
-            .then(clientRes => setClient(clientRes))
-            .catch(e => console.log(e));
+        feeds.forEach((feed) => {
+            connect(feed, (connectedFeed) => {
+                setCurrentFeeds((currentFeeds) => [...currentFeeds, connectedFeed]);
+            });
+        });
     }, []);
 
     return (
-      client
+      (currentFeeds.length === feeds.length)
       ? <Tab.Navigator
         activeColor="#1D192B"
         inactiveColor="#1d192b25"

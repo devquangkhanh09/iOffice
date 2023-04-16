@@ -5,86 +5,48 @@ import {
 import {
     Text
 } from "@react-native-material/core";
+import { useState } from "react";
 import styles from "../styles/styles";
 import controlStyles from "../styles/Control.styles";
 import DeviceTile from "../components/DeviceTile";
+import ComplexDeviceTile from "../components/ComplexDeviceTile";
 
-const data = [
-    {
-        id: "B-01",
-        type: "Bulb",
-        icon: "lightbulb",
-        on: true
-    },
-    {
-        id: "B-02",
-        type: "Bulb",
-        icon: "lightbulb",
-        on: true
-    },
-    {
-        id: "A-01",
-        type: "Air conditioner",
-        icon: "air-conditioner",
-        on: false
-    },
-    {
-        id: "R-01",
-        type: "Router",
-        icon: "router-wireless",
-        on: true
-    },
-    {
-        id: "S-01",
-        type: "Temperature sensor",
-        icon: "select-inverse",
-        on: true
-    },
-    {
-        id: "B-03",
-        type: "Bulb",
-        icon: "lightbulb",
-        on: false
-    },
-    {
-        id: "B-04",
-        type: "Bulb",
-        icon: "lightbulb",
-        on: false
-    },
-    {
-        id: "A-02",
-        type: "Air conditioner",
-        icon: "air-conditioner",
-        on: false
-    },
-    {
-        id: "R-02",
-        type: "Router",
-        icon: "router-wireless",
-        on: true
-    },
-]
+const ControlScreen = ({route, navigation}) => {
+    // const {clientControlLed, clientControlRelay, clientControlFan} = route.params;
+    const [ledState, setLedState] = useState(false);
+    const [relayState, setRelayState] = useState(false);
+    const [fanState, setFanState] = useState({status: false, speed: 0, mode: "auto"});
 
-const ControlScreen = () => {
     return (
         <ScrollView style={styles.screen}>
             <Text variant="h3" style={styles.title}>Control Center</Text>
             <Text variant="subtitle1" style={{textAlign: "center"}}>
-                {data.length} device{data.length <= 1? "":"s"}
+                3 devices connected
             </Text>
             <View style={[{marginTop: 20, marginBottom: 100}, controlStyles.screen]}>
-            {
-                data.map((device) => (
+                <View style={controlStyles.tileRow}>
                     <DeviceTile
-                        key={device.id}
-                        id={device.id}
-                        type={device.type}
-                        icon={device.icon}
-                        on={device.on}
+                        id="LED-01"
+                        type="Led"
+                        icon="lightbulb"
+                        on={ledState}
                     />
-                ))
-            }
+                    <DeviceTile
+                        id="RELAY-01"
+                        type="Relay"
+                        icon="power"
+                        on={relayState}
+                    />
+                </View>
+
+                <ComplexDeviceTile
+                    id="FAN-01"
+                    type="Fan"
+                    icon="fan"
+                    on={fanState.status}
+                    mode={fanState.mode}
+                    value={fanState.speed}
+                />
             </View>
         </ScrollView>
     );

@@ -3,16 +3,19 @@ import { StyleSheet } from "react-native";
 const controlStyles = StyleSheet.create({
     screen: {
         flex: 1,
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "flex-start",
-        alignContent: "flex-start",
-        flexWrap: "wrap",
         rowGap: 25,
+    },
+    tileRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
         columnGap: 25,
     },
     tile: {
-        width: 150,
+        flex: 1,
         height: 150,
         borderRadius: 20,
         padding: 15,
@@ -20,9 +23,22 @@ const controlStyles = StyleSheet.create({
         justifyContent: "space-between",
         alignContent: "flex-start",
     },
+    complexTile: {
+        width: "100%",
+        height: 250,
+    },
+    row: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    slider: {
+        width: "80%",
+    },
     switch: {
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        columnGap: 15,
     },
     tileOn: {
         backgroundColor: "#2631ff"

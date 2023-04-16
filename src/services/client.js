@@ -9,7 +9,9 @@ init({
 	sync: {}
 });
 
-const connect = async (path) => {
+connections = {};
+
+const connect = async (path, callback) => {
 	const options = {
 		host: 'io.adafruit.com',
 		port: 443,
@@ -18,21 +20,24 @@ const connect = async (path) => {
 
 	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path);
 
-	return new Promise((resolve, reject) => {
-		client.connect({
-			onSuccess: () => {
-				console.log(`connected to ${options.path}`);
-				resolve(client);
-			},
-			useSSL: true,
-			timeout: 3,
-			onFailure: (e) => {
-				reject(e);
-			},
-			userName: "metacrektal",
-			password: "aio_JBcy15rQ5AtQZBWmGupHjUzYcbQ1"
-		});
+	client.connect({
+		onSuccess: () => {
+			console.log(`connected to ${options.path}`);
+			connections[path] = client;
+			callback(options.path);
+		},
+		useSSL: true,
+		timeout: 3,
+		onFailure: (e) => {
+			throw new Error(e);
+		},
+		userName: "metacrektal",
+		password: "aio_JBcy15rQ5AtQZBWmGupHjUzYcbQ1"
 	});
 }
 
-export default connect;
+const getClient = (path) => {
+	return connections[path];
+}
+
+export { connect, getClient };
