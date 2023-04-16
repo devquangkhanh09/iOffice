@@ -2,35 +2,61 @@ import {
     View,
     Text
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Icon,
     Switch
 } from "@react-native-material/core";
 import controlStyles from "../styles/Control.styles";
+import {
+    prefixControlFeed,
+    baseUrl,
+    getClient
+} from "../services/client";
+import { AIO_KEY } from "@env";
 
 const DeviceTile = ({
     id,
     type,
     icon,
-    on
 }) => {
-    const [checked, setChecked] = useState(on);
+    const [isOn, setIsOn] = useState(false);
+
+    const client = getClient(`/${prefixControlFeed}${type.toLowerCase()}`);
+
+    useEffect(() => {
+        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data`, {
+            method: "GET",
+            headers: {
+                "X-AIO-Key": AIO_KEY
+            }
+        }).then((res) => res.json()).then((data) => {
+            if (data.length > 0) setIsOn(JSON.parse(data[0].value).status);
+        }).catch((e) => console.log(e));
+    }, []);
 
     return (
-        <View style={[controlStyles.tile, checked? controlStyles.tileOn:controlStyles.tileOff]}>
-            <Icon name={icon} size={20} color={checked? "white":"black"} />
-            <Text style={[controlStyles.deviceID, checked? controlStyles.fontOn:controlStyles.fontOff]}>
+        <View style={[controlStyles.tile, isOn? controlStyles.tileOn:controlStyles.tileOff]}>
+            <Icon name={icon} size={20} color={isOn? "white":"black"} />
+            <Text style={[controlStyles.deviceID, isOn? controlStyles.fontOn:controlStyles.fontOff]}>
                 {id}
             </Text>
-            <Text style={[controlStyles.deviceType, checked? controlStyles.fontOn:controlStyles.fontOff]}>
+            <Text style={[controlStyles.deviceType, isOn? controlStyles.fontOn:controlStyles.fontOff]}>
                 {type}
             </Text>
             <View style={controlStyles.switch}>
-                <Text style={checked? controlStyles.fontOn:controlStyles.fontOff}>{
-                    checked? "On":"Off"
+                <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
+                    isOn? "On":"Off"
                 }</Text>
-                <Switch value={checked} onValueChange={() => setChecked(!checked)} />
+                <Switch value={isOn} onValueChange={async () => {
+                    setIsOn(!isOn);
+                    client.publish(`${prefixControlFeed}${type.toLowerCase()}`, JSON.stringify({
+                        status: isOn,
+                        // TODO: get current username
+                        user: "Steve",
+                        timestamp: new Date()
+                    }));
+                }} />
             </View>
         </View>
     );

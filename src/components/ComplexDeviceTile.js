@@ -2,11 +2,17 @@ import {
     View,
     Text
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Icon,
     Switch
 } from "@react-native-material/core";
+import {
+    prefixControlFeed,
+    baseUrl,
+    getClient
+} from "../services/client";
+import { AIO_KEY } from "@env";
 import Slider from "@react-native-community/slider";
 import controlStyles from "../styles/Control.styles";
 
@@ -14,13 +20,38 @@ const ComplexDeviceTile = ({
     id,
     type,
     icon,
-    on,
-    mode,
-    value,
 }) => {
-    const [isOn, setIsOn] = useState(on);
-    const [isAuto, setIsAuto] = useState(mode === "auto");
-    const [valueSlider, setValueSlider] = useState(value);
+    const [isOn, setIsOn] = useState(false);
+    const [isAuto, setIsAuto] = useState(false);
+    const [valueSlider, setValueSlider] = useState(0);
+
+    const client = getClient(`/${prefixControlFeed}${type.toLowerCase()}`);
+    const publish = () => {
+        client.publish(`${prefixControlFeed}${type.toLowerCase()}`, JSON.stringify({
+            status: isOn,
+            mode: isAuto? "auto":"manual",
+            value: valueSlider,
+            // TODO: get current username
+            user: "Steve",
+            timestamp: new Date()
+        }));
+    };
+
+    useEffect(() => {
+        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data`, {
+            method: "GET",
+            headers: {
+                "X-AIO-Key": AIO_KEY
+            }
+        }).then((res) => res.json()).then((data) => {
+            if (data.length > 0) {
+                const { status, mode, value } = JSON.parse(data[0].value);
+                setIsOn(status);
+                setIsAuto(mode === "auto");
+                setValueSlider(value);
+            }
+        });
+    }, []);
 
     return (
         <View style={[controlStyles.tile, controlStyles.complexTile, isOn? controlStyles.tileOn:controlStyles.tileOff]}>
@@ -37,14 +68,20 @@ const ComplexDeviceTile = ({
                     <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                         isOn? "On":"Off"
                     }</Text>
-                    <Switch value={isOn} onValueChange={() => setIsOn(!isOn)} />
+                    <Switch value={isOn} onValueChange={() => {
+                        setIsOn(!isOn);
+                        publish();
+                    }} />
                 </View>
 
                 <View style={controlStyles.switch}>
                     <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                         isAuto? "Auto":"Manual"
                     }</Text>
-                    <Switch value={isAuto} onValueChange={() => setIsAuto(!isAuto)} disabled={!isOn} />
+                    <Switch value={isAuto} onValueChange={() => {
+                        setIsAuto(!isAuto);
+                        publish();
+                    }} disabled={!isOn} />
                 </View>
             </View>
 
@@ -58,7 +95,10 @@ const ComplexDeviceTile = ({
                     maximumTrackTintColor={isOn? "#cfcdcc":"white"}
                     step={1}
                     value={valueSlider}
-                    onValueChange={setValueSlider}
+                    onValueChange={(value) => {
+                        setValueSlider(value);
+                        publish();
+                    }}
                     disabled={!isOn || isAuto}
                 />
             </View>

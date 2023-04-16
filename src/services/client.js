@@ -1,5 +1,14 @@
 import init from 'react_native_mqtt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AIO_KEY } from '@env';
+
+const controlFeeds = [
+    'led',
+    'relay',
+    'fan',
+];
+const prefixControlFeed = "metacrektal/feeds/iot-control.control-";
+const baseUrl = "https://io.adafruit.com/api/v2";
 
 init({
 	size: 10000,
@@ -32,7 +41,7 @@ const connect = async (path, callback) => {
 			throw new Error(e);
 		},
 		userName: "metacrektal",
-		password: "aio_JBcy15rQ5AtQZBWmGupHjUzYcbQ1"
+		password: AIO_KEY,
 	});
 }
 
@@ -40,4 +49,32 @@ const getClient = (path) => {
 	return connections[path];
 }
 
-export { connect, getClient };
+const resetControlFeeds = () => {
+	controlFeeds.forEach(async (feed) => {
+		const feedData = await fetch(`${baseUrl}/${prefixControlFeed}${feed}/data`, {
+			method: "GET",
+			headers: {
+				"X-AIO-Key": AIO_KEY
+			}
+		});
+		const data = await feedData.json();
+		data.forEach(async (item) => {
+			await fetch(`${baseUrl}/${prefixControlFeed}${feed}/data/${item.id}`, {
+				method: "DELETE",
+				headers: {
+					"X-AIO-Key": AIO_KEY
+				}
+			});
+			console.log("deleted", item.id);
+		});
+	});
+}
+
+export {
+	controlFeeds,
+	prefixControlFeed,
+	baseUrl,
+	connect, 
+	getClient, 
+	resetControlFeeds 
+};

@@ -5,17 +5,12 @@ import {
 import {
     Text
 } from "@react-native-material/core";
-import { useState } from "react";
 import styles from "../styles/styles";
 import controlStyles from "../styles/Control.styles";
 import DeviceTile from "../components/DeviceTile";
 import ComplexDeviceTile from "../components/ComplexDeviceTile";
 
-const ControlScreen = ({route, navigation}) => {
-    // const {clientControlLed, clientControlRelay, clientControlFan} = route.params;
-    const [ledState, setLedState] = useState(false);
-    const [relayState, setRelayState] = useState(false);
-    const [fanState, setFanState] = useState({status: false, speed: 0, mode: "auto"});
+const ControlScreen = () => {
 
     return (
         <ScrollView style={styles.screen}>
@@ -29,13 +24,11 @@ const ControlScreen = ({route, navigation}) => {
                         id="LED-01"
                         type="Led"
                         icon="lightbulb"
-                        on={ledState}
                     />
                     <DeviceTile
                         id="RELAY-01"
                         type="Relay"
                         icon="power"
-                        on={relayState}
                     />
                 </View>
 
@@ -43,9 +36,6 @@ const ControlScreen = ({route, navigation}) => {
                     id="FAN-01"
                     type="Fan"
                     icon="fan"
-                    on={fanState.status}
-                    mode={fanState.mode}
-                    value={fanState.speed}
                 />
             </View>
         </ScrollView>
