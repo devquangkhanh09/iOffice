@@ -27,7 +27,7 @@ const connect = async (path, callback) => {
 		path,
 	};
 
-	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path);
+	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path, `client-${Math.random()}`);
 
 	client.connect({
 		onSuccess: () => {
@@ -39,7 +39,7 @@ const connect = async (path, callback) => {
 		useSSL: true,
 		timeout: 3,
 		onFailure: (e) => {
-			throw new Error(e);
+			console.log(e);
 		},
 		userName: "metacrektal",
 		password: AIO_KEY,
@@ -48,6 +48,12 @@ const connect = async (path, callback) => {
 
 const getClient = (path) => {
 	return connections[path];
+}
+
+const disconnect = () => {
+	Object.keys(connections).forEach((path) => {
+		connections[path].disconnect();
+	});
 }
 
 const resetControlFeeds = () => {
@@ -76,6 +82,7 @@ export {
 	prefixControlFeed,
 	baseUrl,
 	connect, 
-	getClient, 
+	getClient,
+	disconnect,
 	resetControlFeeds 
 };
