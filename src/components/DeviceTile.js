@@ -36,6 +36,10 @@ const DeviceTile = ({
         }).then((res) => res.json()).then((data) => {
             if (data.value) setIsOn(JSON.parse(data.value).status);
         }).catch((e) => console.log(e));
+
+        client.onMessageArrived = (message) => {
+            setIsOn(JSON.parse(message.payloadString).status);
+        };
     }, []);
 
     return (
@@ -54,7 +58,6 @@ const DeviceTile = ({
                 <Switch value={isOn} onValueChange={async () => {
                     client.publish(`${prefixControlFeed}${type.toLowerCase()}`, JSON.stringify({
                         status: !isOn,
-                        // TODO: get current username
                         user: user.email,
                         timestamp: new Date()
                     }));

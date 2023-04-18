@@ -53,6 +53,13 @@ const ComplexDeviceTile = ({
                 setlevelSlider(level);
             }
         });
+
+        client.onMessageArrived = (message) => {
+            const { status, mode, level } = JSON.parse(message.payloadString);
+            setIsOn(status);
+            setIsAuto(mode === "auto");
+            setlevelSlider(level);
+        };
     }, []);
 
     return (

@@ -32,6 +32,7 @@ const connect = async (path, callback) => {
 	client.connect({
 		onSuccess: () => {
 			console.log(`connected to ${options.path}`);
+			client.subscribe(options.path);
 			connections[path] = client;
 			callback(options.path);
 		},
