@@ -39,7 +39,7 @@ const DashboardScreen = () => {
     const [text, setText] = useState('Choosen date:' + date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
     const [dataTemp, setDataTemp] = useState(null);
     const [dataHumd, setDataHumd] = useState(null);
-    const [dataMax, setDataMax] = useState([40, null, null, null, null, null, null, null, null, null, null, null]);
+    const [dataMax, setDataMax] = useState([0, null, null, null, null, null, null, null, null, null, null, null]);
     const [dataMin, setDataMin] = useState([0, null, null, null, null, null, null, null, null, null, null, null]);
 
     var data = {
@@ -59,19 +59,19 @@ const DashboardScreen = () => {
         legend: type === 'temp' ? ["Temperature"] : ["Humidity"]
     };
     useEffect(() => {
-        fetch(`${baseUrl}/${prefixData}temp/data`, {
+        fetch(`${baseUrl}/${prefixData}temp/data?limit=2000`, {
             method: "GET",
             headers: {
                 "X-AIO-Key": AIO_KEY
-            }
+            },
         }).then((res) => res.json()).then((data) => {
             setDataTemp(data);
         }).catch((e) => console.log(e));
-        fetch(`${baseUrl}/${prefixData}humd/data`, {
+        fetch(`${baseUrl}/${prefixData}humd/data?limit=2000`, {
             method: "GET",
             headers: {
                 "X-AIO-Key": AIO_KEY
-            }
+            },
         }).then((res) => res.json()).then((data) => {
             setDataHumd(data);
         }).catch((e) => console.log(e));
@@ -85,11 +85,37 @@ const DashboardScreen = () => {
         let tempDate = new Date(currentDate);
         let fDate = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear();
         setText('Choosen date:' + fDate); 
+        filterData(selectedDate, type);
     }
 
     const showMode = (currentMode) => {
         setShow(true);
         setMode(currentMode);
+    }
+
+    const filterData = (curtype, date) => {
+        if (curtype === 'temp') {
+            res = dataTemp;
+         } else {
+            res = dataHumd;
+        }
+        var dtMax = [0, null, null, null, null, null, null, null, null, null, null, null];
+        var dtMin = [0, null, null, null, null, null, null, null, null, null, null, null];
+        res.forEach((record) => {
+            const curDate = new Date(record["created_at"]);
+            const value = parseFloat(record["value"]);
+            if (curDate.getDate() === date.getDate() && curDate.getMonth() === date.getMonth() && curDate.getFullYear() === date.getFullYear()) {
+                var idx = curDate.getHours();
+                if (idx <= 17 && idx >= 7){
+                    if (dtMax[idx - 7] === null) dtMax[idx - 7] = value;
+                    if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
+                    if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
+                    if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
+                }
+            }
+        });
+        setDataMax(dtMax);
+        setDataMin(dtMin);
     }
 
     return (
@@ -113,11 +139,11 @@ const DashboardScreen = () => {
                 <Pressable 
                     onPress={() => {
                         setType("temp");
-                        var dtMax = [40, null, null, null, null, null, null, null, null, null, null, null];
-                        var dtMin = [0, null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMax = [null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMin = [null, null, null, null, null, null, null, null, null, null, null];
                         dataTemp.forEach((record) => {
                             const curDate = new Date(record["created_at"]);
-                            const value = record["value"];
+                            const value = parseFloat(record["value"]);
                             if (curDate.getDate() === date.getDate() && curDate.getMonth() === date.getMonth() && curDate.getFullYear() === date.getFullYear()) {
                                 var idx = curDate.getHours();
                                 if (idx <= 17 && idx >= 7){
@@ -141,11 +167,11 @@ const DashboardScreen = () => {
                 <Pressable 
                     onPress={() => {
                         setType("humd");
-                        var dtMax = [40, null, null, null, null, null, null, null, null, null, null, null];
-                        var dtMin = [0, null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMax = [null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMin = [null, null, null, null, null, null, null, null, null, null, null];
                         dataHumd.forEach((record) => {
                             const curDate = new Date(record["created_at"]);
-                            const value = record["value"];
+                            const value = parseFloat(record["value"]);
                             if (curDate.getDate() === date.getDate() && curDate.getMonth() === date.getMonth() && curDate.getFullYear() === date.getFullYear()) {
                                 var idx = curDate.getHours();
                                 if (idx <= 17 && idx >= 7){
