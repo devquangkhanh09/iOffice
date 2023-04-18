@@ -32,7 +32,7 @@ const chartConfig = {
 const prefixData = "metacrektal/feeds/iot-data.data-"
 
 const DashboardScreen = () => {
-    const [type, setType] = useState("temp");
+    const [type, setType] = useState(null);
     const [date, setDate] = useState(new Date());
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
@@ -85,7 +85,7 @@ const DashboardScreen = () => {
         let tempDate = new Date(currentDate);
         let fDate = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear();
         setText('Choosen date:' + fDate); 
-        filterData(selectedDate, type);
+        setType(null);
     }
 
     const showMode = (currentMode) => {
@@ -139,8 +139,8 @@ const DashboardScreen = () => {
                 <Pressable 
                     onPress={() => {
                         setType("temp");
-                        var dtMax = [null, null, null, null, null, null, null, null, null, null, null];
-                        var dtMin = [null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMax = [0, null, null, null, null, null, null, null, null, null, null];
+                        var dtMin = [0, null, null, null, null, null, null, null, null, null, null];
                         dataTemp.forEach((record) => {
                             const curDate = new Date(record["created_at"]);
                             const value = parseFloat(record["value"]);
@@ -151,6 +151,7 @@ const DashboardScreen = () => {
                                     if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
                                     if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
                                     if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
+                                    if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
                                 }
                             }
                         });
@@ -167,8 +168,8 @@ const DashboardScreen = () => {
                 <Pressable 
                     onPress={() => {
                         setType("humd");
-                        var dtMax = [null, null, null, null, null, null, null, null, null, null, null];
-                        var dtMin = [null, null, null, null, null, null, null, null, null, null, null];
+                        var dtMax = [0, null, null, null, null, null, null, null, null, null, null];
+                        var dtMin = [0, null, null, null, null, null, null, null, null, null, null];
                         dataHumd.forEach((record) => {
                             const curDate = new Date(record["created_at"]);
                             const value = parseFloat(record["value"]);
@@ -179,6 +180,7 @@ const DashboardScreen = () => {
                                     if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
                                     if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
                                     if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
+                                    if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
                                 }
                             }
                         });
@@ -192,14 +194,33 @@ const DashboardScreen = () => {
                     </Text>
                 </Pressable>
             </View>
-
+            
+            {type !== null ? (
             <LineChart
-                data={data}
+                data={{
+                    labels: ["7h", "8h", "9h", "10h", "11h", "12h", "13h", "14h", "15h", "16h", "17h"],
+                    datasets: [
+                      {
+                        data: dataMax,
+                        color: (opacity = 1) => `rgba(3, 40, 252, ${opacity})`,
+                        strokeWidth: 2
+                      },
+                      {
+                        data: dataMin,
+                        color: (opacity = 1) => `rgba(255, 165, 0, ${opacity})`,
+                        strokeWidth: 2
+                      }
+                    ],
+                    legend: type === 'temp' ? ["Temperature"] : ["Humidity"]                   
+                }}
                 width={Dimensions.get("window").width - 50}
                 height={220}
                 chartConfig={chartConfig}
                 style={dashboardStyles.chart}
             />
+            ) : null}
+
+            
         </View>
     );
 }
