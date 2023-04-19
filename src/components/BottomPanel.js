@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Dimensions, Text, Pressable, Button } from "react-native";
 import {
-  Switch
-} from "@react-native-material/core";
-import Slider from "@react-native-community/slider";
+  StyleSheet,
+  View,
+  Dimensions,
+  Text,
+  Pressable,
+  Button,
+} from "react-native";
+import { Switch } from "@react-native-material/core";
 
 const { width } = Dimensions.get("window");
 
-const BottomPanel = () => {
+const BottomPanel = ({ temp }) => {
   const [temperature, setTemperature] = useState(25);
   const [isAuto, setIsAuto] = useState(true);
 
@@ -21,24 +25,19 @@ const BottomPanel = () => {
 
   return (
     <View style={styles.bottomPanel}>
-      
-      <Switch
-        style={styles.switch}
-        value={isAuto}
-        onValueChange={() => setIsAuto(!isAuto)}
-      />
-
       <View style={styles.temperatureContainer}>
         <Text style={styles.temperatureText}>Temperature</Text>
-        <Slider
-          
-          style={styles.slider}
-          minimumValue={18}
-          maximumValue={30}
-          step={1}
-          value={temperature}
-          onValueChange={handleTemperatureChange}
-        />
+        <Text
+          style={{
+            color: "#F8f8f8",
+            fontStyle: "italic",
+            fontSize: 30,
+            opacity: 0.6,
+            bottom: 15,
+          }}
+        >
+          {temp}°C
+        </Text>
       </View>
     </View>
   );
@@ -57,35 +56,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     // alignItems: "center",
     left: width * 0.05,
+    opacity: 0.9,
   },
   temperatureContainer: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "flex-start",
   },
   temperatureText: {
+    fontWeight: "900",
     color: "#F8F8F8",
     fontSize: 16,
-    position: 'relative',
-    top: 33,
+    position: "relative",
+    top: 15,
+    opacity: 0.6,
   },
   slider: {
     flex: 1,
     top: 34,
-    width: "80%"
-  },
-  switchContainer: {
-    // justifyContent: "center",
-    // alignItems: "flex-end",
-    // position: 'relative',
-    left: 250,
-    top: 5,
-  },
-  switch: {
-    // position: 'relative',
-    right: 0,
-    top: 5
+    width: "80%",
   },
 });
 
