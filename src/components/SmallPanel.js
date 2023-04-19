@@ -7,23 +7,15 @@ import { baseUrl } from "../services/client";
 import { getData } from "../services/asyncStorage";
 import { AIO_KEY } from "@env";
 
-const SmallPanel = ({ type, icon, value }) => {
-  const [humidity, setHumidity] = useState(null);
-  const [light, setLight] = useState(null);
-
-  const onLightChange = (values) => {
-    setLight(values);
-  };
-  const onHumidityChange = (values) => {
-    setHumidity(values);
-  };
-
+const SmallPanel = ({ type, icon}) => {
+  const [value, setValue] = useState(null);
+  const [prevalue, setprevalue] = useState(null);
   const prefixData = "metacrektal/feeds/iot-data.data-";
 
   const typ = type === "Humidity" ? "humd" : "light";
 
   useEffect(() => {
-    fetch(`${baseUrl}/${prefixData}${typ.toLowerCase()}/data`, {
+    fetch(`${baseUrl}/${prefixData}${typ}/data`, {
       method: "GET",
       headers: {
         "X-AIO-Key": AIO_KEY,
@@ -31,11 +23,14 @@ const SmallPanel = ({ type, icon, value }) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.value) {
-          if (typ === "humd") onHumidityChange(data[data.length - 1].value);
-          onLightChange(data[data.length - 1].value);
-          console.log(data[data.length - 1].value)
-        //   console.log(data);
+        if (data.length) {
+          setValue(data[data.length - 1].value);
+        }
+        if (data.length > 1){
+          setprevalue(data[data.length - 2].value);
+        }
+        else {
+          setprevalue(data[data.length - 1].value);
         }
       })
       .catch((e) => console.log(e));
@@ -73,7 +68,7 @@ const SmallPanel = ({ type, icon, value }) => {
           opacity: 0.6,
         }}
       >
-        {type === "Humidity" ? humidity : light}
+        {value}
       </Text>
     </View>
   );

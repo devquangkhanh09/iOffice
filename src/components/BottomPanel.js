@@ -17,10 +17,6 @@ const { width } = Dimensions.get("window");
 const BottomPanel = () => {
   const [temperature, setTemperature] = useState(null);
 
-  const onTemperatureChange = (values) => {
-    setTemperature(values);
-  };
-
   const prefixData = "metacrektal/feeds/iot-data.data-";
 
   useEffect(() => {
@@ -32,11 +28,8 @@ const BottomPanel = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.value) {
-          onTemperatureChange(data[data.length - 1].value);
-        }
         // console.log(data);
-        console.log(data[data.length - 1].value);
+        setTemperature(data[data.length - 1].value);
       })
       .catch((e) => console.log(e));
   }, []);
