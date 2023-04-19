@@ -15,7 +15,8 @@ import { AIO_KEY } from "@env";
 const { width } = Dimensions.get("window");
 
 const BottomPanel = () => {
-  const [temperature, setTemperature] = useState(null);
+  const [value, setValue] = useState(null);
+  const [prevalue, setprevalue] = useState(null);
 
   const prefixData = "metacrektal/feeds/iot-data.data-";
 
@@ -28,8 +29,15 @@ const BottomPanel = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        // console.log(data);
-        setTemperature(data[data.length - 1].value);
+        if (data.length) {
+          setValue(data[data.length - 1].value);
+        }
+        if (data.length > 1){
+          setprevalue(data[data.length - 2].value);
+        }
+        else {
+          setprevalue(data[data.length - 1].value);
+        }
       })
       .catch((e) => console.log(e));
   }, []);
@@ -47,7 +55,7 @@ const BottomPanel = () => {
             bottom: 15,
           }}
         >
-          {temperature}°C
+          {value}°C
         </Text>
       </View>
     </View>
