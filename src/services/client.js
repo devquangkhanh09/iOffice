@@ -27,7 +27,7 @@ const connect = async (path, callback) => {
 		path,
 	};
 
-	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path);
+	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path, `client-${Math.random()}`);
 
 	client.connect({
 		onSuccess: () => {
