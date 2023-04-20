@@ -14,3 +14,15 @@ const firebaseConfig = {
   const app = initializeApp(firebaseConfig);
   
   export default app;
+
+// form gui tu FB qua ada
+//   res = {
+//     table:
+//     value: {
+//         level:
+//         mode: 
+//         threshold:
+//     }
+//     time:
+// }
+// mode, threshold = -1 neu gui light va relay
