@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import app from "./firebaseApp";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -12,9 +13,16 @@ import {
 import OnBoardingNavigator from "./src/components/OnBoardingNavigator";
 import AppNavigator from "./src/components/AppNavigator";
 import { storeData, getData, removeData } from "./src/services/asyncStorage";
+import { disconnect } from './src/services/client';
 
 export default function App() {
   const [user, setUser] = useState(null);
+
+  const onSignOut = async () => {
+    await removeData("user");
+    disconnect();
+    setUser(null);
+  };
 
   useEffect(() => {
     if (!user) getData("user").then(userFromStorage => setUser(userFromStorage));
@@ -37,7 +45,7 @@ export default function App() {
         <NavigationContainer>
           {
             user
-              ? <AppNavigator />
+              ? <AppNavigator onSignOut={onSignOut} />
               : <SafeAreaView
                 style={{
                   flex: 1,
