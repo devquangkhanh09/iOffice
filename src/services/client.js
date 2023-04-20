@@ -27,7 +27,7 @@ const connect = async (path, callback) => {
 		path,
 	};
 
-	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path, `client-${Math.random()}`);
+	const client = new Paho.MQTT.Client(options.host, Number(options.port), options.path);
 
 	client.connect({
 		onSuccess: () => {
@@ -37,7 +37,7 @@ const connect = async (path, callback) => {
 			callback(options.path);
 		},
 		useSSL: true,
-		timeout: 3,
+		timeout: 6,
 		onFailure: (e) => {
 			console.log(e);
 		},
