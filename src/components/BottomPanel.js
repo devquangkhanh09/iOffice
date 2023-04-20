@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -9,19 +9,37 @@ import {
 } from "react-native";
 import { Switch } from "@react-native-material/core";
 
+import { baseUrl } from "../services/client";
+import { getData } from "../services/asyncStorage";
+import { AIO_KEY } from "@env";
 const { width } = Dimensions.get("window");
 
-const BottomPanel = ({ temp }) => {
-  const [temperature, setTemperature] = useState(25);
-  const [isAuto, setIsAuto] = useState(true);
+const BottomPanel = () => {
+  const [temperature, setTemperature] = useState(null);
 
-  const handleAutoSwitchChange = (value) => {
-    setIsAuto(value);
+  const onTemperatureChange = (values) => {
+    setTemperature(values);
   };
 
-  const handleTemperatureChange = (value) => {
-    setTemperature(value);
-  };
+  const prefixData = "metacrektal/feeds/iot-data.data-";
+
+  useEffect(() => {
+    fetch(`${baseUrl}/${prefixData}temp/data`, {
+      method: "GET",
+      headers: {
+        "X-AIO-Key": AIO_KEY,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.value) {
+          onTemperatureChange(data[data.length - 1].value);
+        }
+        // console.log(data);
+        console.log(data[data.length - 1].value);
+      })
+      .catch((e) => console.log(e));
+  }, []);
 
   return (
     <View style={styles.bottomPanel}>
@@ -36,7 +54,7 @@ const BottomPanel = ({ temp }) => {
             bottom: 15,
           }}
         >
-          {temp}°C
+          {temperature}°C
         </Text>
       </View>
     </View>

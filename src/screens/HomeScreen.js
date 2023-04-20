@@ -12,16 +12,14 @@ import BottomPanel from "../components/BottomPanel";
 import SmallPanel from "../components/SmallPanel";
 import controlStyles from "../styles/Control.styles";
 
+import { getData } from "../services/asyncStorage";
+
+import { baseUrl } from "../services/client";
+
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = () => {
-  const [humidifierAirAuto, setHumidifierAirAuto] = useState(false);
-  const [fanAuto, setFanAuto] = useState(false);
-  const [temperature, setTemperature] = useState(25);
-
-  const onTemperatureChange = (values) => {
-    setTemperature(values);
-  };
+ 
 
   return (
     <View style={styles.container}>
@@ -38,12 +36,12 @@ const HomeScreen = () => {
             columnGap: 10,
           }}
         >
-          <SmallPanel type="Humidity" icon="water" value="33%" />
-          <SmallPanel type="Light" icon="lightbulb" value="33%" />
+          <SmallPanel type="Humidity" icon="water" />
+          <SmallPanel type="Light" icon="lightbulb"/>
         </View>
       </View>
       <View style={styles.temperatureContainer}>
-        <BottomPanel temp={32} />
+        <BottomPanel/>
       </View>
     </View>
   );
