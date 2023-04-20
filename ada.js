@@ -21,20 +21,3 @@ client.aioSensor.on('message', async function (topic, message) {
   }
   console.log(data);
 })
-
-
-//// 
-{
-    table:
-    value: {
-        level:
-        mode: 
-    }
-    time:
-}
-
-if table === 'control-fan'
-
-newRecord = {
-
-}
