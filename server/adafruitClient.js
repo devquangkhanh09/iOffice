@@ -1,31 +1,46 @@
 var mqtt = require('mqtt');
+var { sendDataToFirebase } = require('./firebaseApp');
 require('dotenv').config();
 
 aioSensor = mqtt.connect(`mqtts://${process.env.AIO_USERNAME}:${process.env.AIO_KEY}@io.adafruit.com`, 8883);
 aioControl = mqtt.connect(`mqtts://${process.env.AIO_USERNAME}:${process.env.AIO_KEY}@io.adafruit.com`, 8883);
 
-const timeZone = 'Asia/Jakarta';
-const options = { timeZone: timeZone, timeZoneName: 'short' };
-
 aioSensor.subscribe(`${process.env.AIO_USERNAME}/groups/${process.env.AIO_GROUP_DATA}`, function (err) {
   if (!err) {
     console.log('Subscribe topic successful');
+  } else {
+    console.log('Subscribe topic failed, error:', err);
   }
 })
 
 const temp_threshold = 25;
 const humd_threshold = 50;
-const automode = 1;
+const automode = 0;
+
+const getCurrentTime = () => {
+  const date = new Date();
+
+  const year = date.getFullYear();
+  const month = String((date.getMonth() + 1)).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+};
 
 aioSensor.on('message', async function (topic, message) {
-  payload = JSON.parse(message.toString());
-  key = Object.keys(payload.feeds);
-  value = Object.values(payload.feeds);
-  data = {
+  const payload = JSON.parse(message.toString());
+  const key = Object.keys(payload.feeds);
+  const value = Object.values(payload.feeds);
+  const data = {
     feed: key[0],
     value: value[0],
-    time: new Date().toLocaleString('en-US', options)
+    timestamp: getCurrentTime()
   };
+  await sendDataToFirebase(data);
+
   val = parseFloat(data.value);
   if (automode === 1){
     if (data.feed === 'data-humd'){
@@ -44,10 +59,15 @@ aioSensor.on('message', async function (topic, message) {
   console.log(data);
 })
 
-async function sendDate(feed, value) {
-  var feedkey;
-  if (feed === 'relay') feedkey = process.env.AIO_RELAY;
-  else if (feed === 'led') feedkey = process.env.AIO_LED;
-  else feedkey = process.env.AIO_FAN;
-  aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${feedkey}`, `${value}`)
+async function sendDataToAda({
+  feedkey, 
+  value
+}) {
+  aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${feedkey}`, value);
+  console.log(`Send data to Adafruit: ${feedkey} = ${value}`);
 }
+
+module.exports = {
+  sendDataToAda,
+  getCurrentTime
+};

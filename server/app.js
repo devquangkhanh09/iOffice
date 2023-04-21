@@ -6,7 +6,10 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var admin = require('./firebaseApp');
+var { sendDataToAda, getCurrentTime } = require('./adafruitClient');
+var { admin } = require('./firebaseApp');
+
+const currentTime = getCurrentTime();
 
 var app = express();
 
@@ -39,12 +42,24 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+const controlFeeds = ['control-led', 'control-fan', 'control-relay'];
 const db = admin.firestore();
-const usersRef = db.collection('users');
-usersRef.get()
-  .then(data => data.forEach(doc => {
-    console.log(doc.id, '=>', doc.data());
-  }))
-  .catch(err => console.log(err));
+
+controlFeeds.forEach(feed => {
+  const colRef = db.collection(feed);
+  const query = colRef.where('timestamp', '>=', currentTime);
+
+  query.onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const { value } = change.doc.data();
+        sendDataToAda({
+          feedkey: `iot-control.${feed}`,
+          value,
+        });
+      }
+    });
+  });
+});
 
 module.exports = app;
