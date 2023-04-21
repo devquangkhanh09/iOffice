@@ -6,6 +6,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var admin = require('./firebaseApp');
 
 var app = express();
 
@@ -37,5 +38,13 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+const db = admin.firestore();
+const usersRef = db.collection('users');
+usersRef.get()
+  .then(data => data.forEach(doc => {
+    console.log(doc.id, '=>', doc.data());
+  }))
+  .catch(err => console.log(err));
 
 module.exports = app;
