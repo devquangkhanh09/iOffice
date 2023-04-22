@@ -70,7 +70,10 @@ const DeviceTile = ({
                         timestamp: curTime,
                         device: type.toLowerCase(),
                         status: !isOn ? "on" : "off",
-                    }, {
+                    }, type === 'Led' ? {
+                        timestamp: curTime,
+                        status: !isOn ? "on" : "off",
+                    } : {
                         timestamp: curTime,
                         status: !isOn ? "on" : "off",
                         mode: isAuto ? "auto" : "manual",
