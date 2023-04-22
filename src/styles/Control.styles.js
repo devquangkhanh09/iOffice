@@ -15,17 +15,13 @@ const controlStyles = StyleSheet.create({
         columnGap: 25,
     },
     tile: {
-        flex: 1,
-        height: 150,
+        width: "100%",
         borderRadius: 20,
         padding: 15,
         flexDirection: "column",
         justifyContent: "space-between",
         alignContent: "flex-start",
-    },
-    complexTile: {
-        width: "100%",
-        height: 250,
+        rowGap: 10,
     },
     row: {
         flexDirection: "row",

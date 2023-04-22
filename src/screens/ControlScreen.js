@@ -19,18 +19,16 @@ const ControlScreen = () => {
                 3 devices connected
             </Text>
             <View style={[{marginTop: 20, marginBottom: 100}, controlStyles.screen]}>
-                <View style={controlStyles.tileRow}>
-                    <DeviceTile
-                        id="LED-01"
-                        type="Led"
-                        icon="lightbulb"
-                    />
-                    <DeviceTile
-                        id="RELAY-01"
-                        type="Relay"
-                        icon="power"
-                    />
-                </View>
+                <DeviceTile
+                    id="LED-01"
+                    type="Led"
+                    icon="lightbulb"
+                />
+                <DeviceTile
+                    id="RELAY-01"
+                    type="Relay"
+                    icon="power"
+                />
 
                 <ComplexDeviceTile
                     id="FAN-01"

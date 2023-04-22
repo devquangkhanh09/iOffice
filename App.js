@@ -32,10 +32,6 @@ export default function App() {
         storeData("user", user);
         setUser(user);
       }
-      else {
-        // removeData("user");
-        // setUser(null);
-      };
     });
   }, []);
 

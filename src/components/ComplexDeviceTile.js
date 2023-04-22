@@ -5,15 +5,23 @@ import {
 import { useState, useEffect } from "react";
 import {
     Icon,
-    Switch
+    Switch,
+    TextInput,
+    Button
 } from "@react-native-material/core";
 import {
-    prefixControlFeed,
-    baseUrl,
-    getClient
-} from "../services/client";
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    limit,
+    onSnapshot,
+} from "firebase/firestore";
+import {
+    getCurrentTime,
+    updateControl
+} from '../services/utils';
 import { getData } from "../services/asyncStorage";
-import { AIO_KEY } from "@env";
 import Slider from "@react-native-community/slider";
 import controlStyles from "../styles/Control.styles";
 
@@ -25,41 +33,24 @@ const ComplexDeviceTile = ({
     const [isOn, setIsOn] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
     const [levelSlider, setlevelSlider] = useState(0);
+    const [threshold, setThreshold] = useState([0, 0, 0, 0]);
     const [user, setUser] = useState(null);
 
-    const client = getClient(`/${prefixControlFeed}${type.toLowerCase()}`);
-    const publish = (data) => {
-        const dataPublish = JSON.stringify({
-            ...data,
-            user: user.email,
-            timestamp: new Date()
-        });
-
-        client.publish(`${prefixControlFeed}${type.toLowerCase()}`, dataPublish);
-    };
+    const db = getFirestore();
 
     useEffect(() => {
         getData("user").then((user) => setUser(user));
-        fetch(`${baseUrl}/${prefixControlFeed}${type.toLowerCase()}/data/last`, {
-            method: "GET",
-            headers: {
-                "X-AIO-Key": AIO_KEY
-            }
-        }).then((res) => res.json()).then((data) => {
-            if (data.value) {
-                const { status, mode, level } = JSON.parse(data.value);
-                setIsOn(status);
-                setIsAuto(mode === "auto");
-                setlevelSlider(level);
-            }
+        const q = query(collection(db, `control-${type.toLowerCase()}`), orderBy("timestamp", "desc"), limit(1));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                if (doc.data()) {
+                    setIsOn(doc.data().status === "on");
+                    setlevelSlider(doc.data().level);
+                    setIsAuto(doc.data().mode === "auto");
+                    setThreshold(doc.data().threshold);
+                }
+            });
         });
-
-        client.onMessageArrived = (message) => {
-            const { status, mode, level } = JSON.parse(message.payloadString);
-            setIsOn(status);
-            setIsAuto(mode === "auto");
-            setlevelSlider(level);
-        };
     }, []);
 
     return (
@@ -78,11 +69,20 @@ const ComplexDeviceTile = ({
                         isOn? "On":"Off"
                     }</Text>
                     <Switch value={isOn} onValueChange={() => {
-                        publish({
-                            status: !isOn,
-                            level: levelSlider,
+                        const curTime = getCurrentTime();
+                        updateControl(`control-${type.toLowerCase()}`, {
+                            user: user.email,
+                            timestamp: curTime,
+                            device: type.toLowerCase(),
+                            status: !isOn? "on":"off",
+                        }, {
+                            timestamp: curTime,
+                            status: !isOn? "on":"off",
                             mode: isAuto? "auto":"manual",
+                            level: levelSlider,
+                            threshold: threshold,
                         });
+
                         setIsOn(!isOn);
                     }} />
                 </View>
@@ -92,11 +92,20 @@ const ComplexDeviceTile = ({
                         isAuto? "Auto":"Manual"
                     }</Text>
                     <Switch value={isAuto} onValueChange={() => {
-                        publish({
-                            status: isOn,
-                            level: levelSlider,
+                        const curTime = getCurrentTime();
+                        updateControl(`control-${type.toLowerCase()}`, {
+                            user: user.email,
+                            timestamp: curTime,
+                            device: type.toLowerCase(),
                             mode: !isAuto? "auto":"manual",
+                        }, {
+                            timestamp: curTime,
+                            status: isOn? "on":"off",
+                            mode: !isAuto? "auto":"manual",
+                            level: levelSlider,
+                            threshold: threshold,
                         });
+
                         setIsAuto(!isAuto);
                     }} disabled={!isOn} />
                 </View>
@@ -113,16 +122,95 @@ const ComplexDeviceTile = ({
                     step={1}
                     value={levelSlider}
                     onValueChange={(value) => {
-                        publish({
-                            status: isOn,
+                        const curTime = getCurrentTime();
+                        updateControl(`control-${type.toLowerCase()}`, {
+                            user: user.email,
+                            timestamp: curTime,
+                            device: type.toLowerCase(),
                             level: value,
+                        }, {
+                            timestamp: curTime,
+                            status: isOn? "on":"off",
                             mode: isAuto? "auto":"manual",
+                            level: value,
+                            threshold: threshold,
                         });
+
                         setlevelSlider(value);
                     }}
                     disabled={!isOn || isAuto}
                 />
             </View>
+            <TextInput
+                style={controlStyles.input}
+                label="Threshold 1"
+                value={String(threshold[0])}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                    const newThreshold = [...threshold];
+                    newThreshold[0] = Number(text);
+                    setThreshold(newThreshold);
+                }}
+                editable={isAuto}
+            />
+            <TextInput
+                style={controlStyles.input}
+                label="Threshold 2"
+                value={String(threshold[1])}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                    const newThreshold = [...threshold];
+                    newThreshold[1] = Number(text);
+                    setThreshold(newThreshold);
+                }}
+                editable={isAuto}
+            />
+            <TextInput
+                style={controlStyles.input}
+                label="Threshold 3"
+                value={String(threshold[2])}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                    const newThreshold = [...threshold];
+                    newThreshold[2] = Number(text);
+                    setThreshold(newThreshold);
+                }}
+                editable={isAuto}
+            />
+            <TextInput
+                style={controlStyles.input}
+                label="Threshold 4"
+                value={String(threshold[3])}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                    const newThreshold = [...threshold];
+                    newThreshold[3] = Number(text);
+                    setThreshold(newThreshold);
+                }}
+                editable={isAuto}
+            />
+
+            <Button 
+                variant="outlined" 
+                title="Save threshold" 
+                color={isOn? "white":"black"} 
+                onPress={() => {
+                    const curTime = getCurrentTime();
+                    updateControl(`control-${type.toLowerCase()}`, {
+                        user: user.email,
+                        timestamp: curTime,
+                        device: type.toLowerCase(),
+                        threshold: threshold,
+                    }, {
+                        timestamp: curTime,
+                        status: isOn? "on":"off",
+                        mode: isAuto? "auto":"manual",
+                        level: levelSlider,
+                        threshold: threshold,
+                    });
+                }}
+            />
+
         </View>
     );
 };
