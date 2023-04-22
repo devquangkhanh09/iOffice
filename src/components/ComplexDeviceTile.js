@@ -35,7 +35,6 @@ const ComplexDeviceTile = ({
     const [levelSlider, setlevelSlider] = useState(0);
     const [threshold, setThreshold] = useState([0, 0, 0, 0]);
     const [user, setUser] = useState(null);
-
     const db = getFirestore();
 
     useEffect(() => {

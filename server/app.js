@@ -55,6 +55,10 @@ controlFeeds.forEach(feed => {
         var value;
         if (log.status === 'on') value = log.level; else value = 0;
         if (feed === 'control-fan') value = 25*value;
+        else {
+          if (log.status === 'on') value = 1;
+          else value = 0;
+        }
         console.log(log.status, feed);
         sendDataToAda({
           feedkey: `iot-control.${feed}`,
