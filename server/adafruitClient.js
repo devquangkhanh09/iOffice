@@ -75,14 +75,29 @@ queryLog.onSnapshot(snapshot => {
   snapshot.docChanges().forEach(change => {
     if (change.type === 'added') {
       const log = change.doc.data();
-      if (log.mode === 1){
+      console.log(log);
+      if (log.mode === "auto"){
         if (log.device === 'fan') {
-          temp_threshold = log.threshold;
           fan_automode = 1;
         }
         else if (log.device === 'relay') {
-          humd_threshold = log.threshold;
           humd_automode = 1;
+        }
+      }
+      else if (log.mode === 'manual'){
+        if (log.device === 'fan') {
+          fan_automode = 0;
+        }
+        else if (log.device === 'relay') {
+          humd_automode = 0;
+        }
+      }
+      else {
+        if (log.device === 'fan') {
+          temp_threshold = log.threshold;
+        }
+        else if (log.device === 'relay') {
+          humd_threshold = log.threshold;
         }
       }
     }
