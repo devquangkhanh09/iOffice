@@ -10,7 +10,6 @@ var { sendDataToAda, getCurrentTime } = require('./adafruitClient');
 var { admin } = require('./firebaseApp');
 
 const currentTime = getCurrentTime();
-
 var app = express();
 
 // view engine setup
