@@ -51,7 +51,15 @@ controlFeeds.forEach(feed => {
   query.onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
       if (change.type === 'added') {
-        const { value } = change.doc.data();
+        const log = change.doc.data();
+        var value;
+        if (log.status === 'on') value = log.level; else value = 0;
+        if (feed === 'control-fan') value = 25*value;
+        else {
+          if (log.status === 'on') value = 1;
+          else value = 0;
+        }
+        console.log(log.status, feed);
         sendDataToAda({
           feedkey: `iot-control.${feed}`,
           value,

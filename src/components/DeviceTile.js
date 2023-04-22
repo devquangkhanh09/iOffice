@@ -31,7 +31,7 @@ const DeviceTile = ({
 }) => {
     const [isOn, setIsOn] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
-    const [threshold, setThreshold] = useState(0);
+    const [threshold, setThreshold] = useState(50);
     const [user, setUser] = useState(null);
 
     const db = getFirestore();
