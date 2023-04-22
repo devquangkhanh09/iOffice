@@ -13,10 +13,12 @@ import { Dimensions } from "react-native";
 import styles from "../styles/styles";
 import dashboardStyles from "../styles/Dashboard.styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AIO_KEY } from "@env";
-import {
-    baseUrl,
-} from "../services/client";
+
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+
+const db = getFirestore();
+const humdRef = collection(db,'data-humd');
+const tempRef = collection(db,'data-temp');
 
 const chartConfig = {
     backgroundGradientFrom: "#606163",
@@ -27,7 +29,6 @@ const chartConfig = {
     decimalPlaces: 0,
 };
 
-const prefixData = "metacrektal/feeds/iot-data.data-"
 
 const DashboardScreen = () => {
     const [type, setType] = useState(null);
@@ -46,6 +47,11 @@ const DashboardScreen = () => {
                 data: [0, null, null, null, null, null, null, null, null, null, null, null],
                 color: (opacity = 1) => `rgba(255, 165, 0, ${opacity})`,
                 strokeWidth: 2
+              },
+              {
+                data: [0, null, null, null, null, null, null, null, null, null, null, null],
+                color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                strokeWidth: 2
               }
             ],
             legend: ["Temperature"]
@@ -59,7 +65,7 @@ const DashboardScreen = () => {
     }
 
     const convert = (curDate) => {
-        return String(curDate.getFullYear()) + '-' + String(curDate.getMonth() + 1).padStart(2, '0') + '-' + String(curDate.getDate()).padStart(2, '0') + 'T00:00Z';
+        return String(curDate.getFullYear()) + '-' + String(curDate.getMonth() + 1).padStart(2, '0') + '-' + String(curDate.getDate()).padStart(2, '0') + ' 00:00:00';
     }
 
     return (
@@ -107,39 +113,43 @@ const DashboardScreen = () => {
                     </Text>
                 </Pressable>
             </View>
-            <Button title="Find" onPress={() => {
+            <Button title="Find" onPress={async () => {
+                var ref = type === "temp" ? tempRef : humdRef
                 var start = convert(date);
                 var end = convert(new Date(date.getTime() + (24 * 60 * 60 * 1000)));
-                fetch(`${baseUrl}/${prefixData}${type}/data?start_time=${start}&end_time=${end}&limit=1000`, {
-                    method: "GET",
-                    headers: {
-                        "X-AIO-Key": AIO_KEY
+                const q = query(ref, where("timestamp", ">=", start), where("timestamp", "<=", end));
+                const querySnapshot = await getDocs(q);
+                var dtMax = [0, null, null, null, null, null, null, null, null, null, null];
+                var dtMin = [0, null, null, null, null, null, null, null, null, null, null];
+                var count = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                var dt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                var res = [];
+                querySnapshot.forEach((doc) => {
+                    const value = parseFloat(doc.data()["value"]);
+                    const idx = parseInt(doc.data()["timestamp"].slice(11, 14));
+                    if (idx <= 17 && idx >= 7){
+                        if (dtMax[idx - 7] === null) dtMax[idx - 7] = value;
+                        if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
+                        if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
+                        if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
+                        if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
+                        count[idx - 7]++;
+                        dt[idx - 7] += value;
                     }
-                }).then((res) => res.json()).then((res) => {
-                    var dtMax = [0, null, null, null, null, null, null, null, null, null, null];
-                    var dtMin = [0, null, null, null, null, null, null, null, null, null, null];
-                    res.forEach((record) => {
-                        const value = parseFloat(record["value"]);
-                        var curDate = new Date(record["created_at"]);
-                        var idx = curDate.getHours();
-                        if (idx <= 17 && idx >= 7){
-                            if (dtMax[idx - 7] === null) dtMax[idx - 7] = value;
-                            if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
-                            if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
-                            if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
-                            if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
-                        }
-                    });
-                    setData(pre => {
-                        pre.datasets[0].data = dtMax;
-                        pre.datasets[1].data = dtMin;
-                        pre.legend = (type === 'temp') ? ['Temperature'] : ['Humidity'];
-                        // console.log(pre.datasets);
-                        return pre;
-                    })
-                    console.log(data.datasets);
-                    setTypeC(true);
-                }).catch((e) => console.log(e));
+                });
+                for (let i = 0; i < dt.length; i++) {
+                    const quotient = dt[i] / count[i];
+                    res.push(quotient);
+                }
+                setData(pre => {
+                    pre.datasets[0].data = dtMax;
+                    pre.datasets[1].data = dtMin;
+                    pre.datasets[2].data = res;
+                    pre.legend = (type === 'temp') ? ['Temperature'] : ['Humidity'];
+                    // console.log(pre.datasets);
+                    return pre;
+                })
+                setTypeC(true);
             }}/>
             
             {typeC !== null ? (
