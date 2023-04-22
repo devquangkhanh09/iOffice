@@ -63,7 +63,7 @@ async function sendDataToAda({
   feedkey, 
   value
 }) {
-  aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${feedkey}`, value);
+  aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${feedkey}`, String(value));
   console.log(`Send data to Adafruit: ${feedkey} = ${value}`);
 }
 
