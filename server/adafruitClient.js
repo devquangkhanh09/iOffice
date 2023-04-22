@@ -15,7 +15,8 @@ aioSensor.subscribe(`${process.env.AIO_USERNAME}/groups/${process.env.AIO_GROUP_
 
 var temp_threshold = [20, 23, 25, 27];
 var humd_threshold = 50;
-var automode = 1;
+var fan_automode = 0;
+var humd_automode = 0;
 
 const getCurrentTime = () => {
   const date = new Date();
@@ -44,18 +45,16 @@ aioSensor.on('message', async function (topic, message) {
   await sendDataToFirebase(data);
 
   val = parseFloat(data.value);
-  if (automode === 1){
-    if (data.feed === 'data-humd'){
-      if (val < humd_threshold) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '1');
-      else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '0');
-    }
-    else if (data.feed === 'data-temp'){
-      if (val < temp_threshold[0]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '0');
+  if (data.feed === 'data-humd' && humd_automode === 1){
+    if (val < humd_threshold) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '1');
+    else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '0');
+  }
+  else if (data.feed === 'data-temp' && fan_automode === 1){
+    if (val < temp_threshold[0]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '0');
       else if (val < temp_threshold[1]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '25');
       else if (val < temp_threshold[2]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '50');
       else if (val < temp_threshold[3]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '75');
       else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '100');
-    }
   }
   console.log(data);
 })
@@ -77,9 +76,14 @@ queryLog.onSnapshot(snapshot => {
     if (change.type === 'added') {
       const log = change.doc.data();
       if (log.mode === 1){
-        automode = 1;
-        if (log.device === 'fan') temp_threshold = log.threshold;
-        else if (log.device === 'relay') humd_threshold = log.threshold;
+        if (log.device === 'fan') {
+          temp_threshold = log.threshold;
+          fan_automode = 1;
+        }
+        else if (log.device === 'relay') {
+          humd_threshold = log.threshold;
+          humd_automode = 1;
+        }
       }
     }
   });
