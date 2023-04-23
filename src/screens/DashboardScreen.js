@@ -54,7 +54,7 @@ const DashboardScreen = () => {
                 strokeWidth: 2
               }
             ],
-            legend: ["Temperature"]
+            legend: ["Max", "Min", "Avg"]
     })
 
     const onChange = (event, selectedDate) => {
@@ -145,8 +145,6 @@ const DashboardScreen = () => {
                     pre.datasets[0].data = dtMax;
                     pre.datasets[1].data = dtMin;
                     pre.datasets[2].data = res;
-                    pre.legend = (type === 'temp') ? ['Temperature'] : ['Humidity'];
-                    // console.log(pre.datasets);
                     return pre;
                 })
                 setTypeC(true);
