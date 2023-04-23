@@ -8,29 +8,29 @@ import { NavigationContainer } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import {
   getAuth,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 import OnBoardingNavigator from "./src/components/OnBoardingNavigator";
 import AppNavigator from "./src/components/AppNavigator";
 import { storeData, getData, removeData } from "./src/services/asyncStorage";
-import { disconnect } from './src/services/client';
 
 export default function App() {
   const [user, setUser] = useState(null);
 
   const onSignOut = async () => {
     await removeData("user");
-    disconnect();
+    await signOut(getAuth());
     setUser(null);
   };
 
   useEffect(() => {
     if (!user) getData("user").then(userFromStorage => setUser(userFromStorage));
 
-    onAuthStateChanged(getAuth(), (user) => {
-      if (user) {
-        storeData("user", user);
-        setUser(user);
+    onAuthStateChanged(getAuth(), (userFromFirebase) => {
+      if (userFromFirebase) {
+        storeData("user", userFromFirebase);
+        setUser(userFromFirebase);
       }
     });
   }, []);

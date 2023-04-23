@@ -1,39 +1,35 @@
 import { View, Text } from "react-native";
 import { useState, useEffect } from "react";
 import { Icon } from "@react-native-material/core";
-import controlStyles from "../styles/Control.styles";
-
-import { baseUrl } from "../services/client";
-import { getData } from "../services/asyncStorage";
-import { AIO_KEY } from "@env";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 
 const SmallPanel = ({ type, icon}) => {
   const [value, setValue] = useState(null);
-  const [prevalue, setprevalue] = useState(null);
-  const prefixData = "metacrektal/feeds/iot-data.data-";
+  const [preValue, setpreValue] = useState(null);
 
-  const typ = type === "Humidity" ? "humd" : "light";
+  const db = getFirestore();
 
   useEffect(() => {
-    fetch(`${baseUrl}/${prefixData}${typ}/data`, {
-      method: "GET",
-      headers: {
-        "X-AIO-Key": AIO_KEY,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.length) {
-          setValue(data[data.length - 1].value);
+    const q = query(
+      collection(db, type === "Humidity" ? "data-humd" : "data-light"),
+      orderBy("timestamp", "desc"),
+      limit(2)
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      if (querySnapshot.size >= 1) {
+        setValue(querySnapshot.docs[0].data().value);
+        if (querySnapshot.size >= 2) {
+          setpreValue(querySnapshot.docs[1].data().value);
         }
-        if (data.length > 1){
-          setprevalue(data[data.length - 2].value);
-        }
-        else {
-          setprevalue(data[data.length - 1].value);
-        }
-      })
-      .catch((e) => console.log(e));
+      }
+    });
   }, []);
 
   return (
@@ -60,6 +56,7 @@ const SmallPanel = ({ type, icon}) => {
       >
         {type}
       </Text>
+
       <Text
         style={{
           color: "#F8f8f8",
@@ -70,6 +67,9 @@ const SmallPanel = ({ type, icon}) => {
       >
         {value}
       </Text>
+      {preValue === null || preValue === value ||
+        <Icon name={value > preValue ? "arrow-up" : "arrow-down"} size={24} color={value > preValue ? "red" : "green"} />
+      }
     </View>
   );
 };

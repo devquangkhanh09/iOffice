@@ -11,7 +11,6 @@ const logStyles = StyleSheet.create({
     activity: {
         backgroundColor: "#99ffff",
         height: 100,
-        borderRadius: 10,
         borderWidth: 1,
         padding: 15,
         flexDirection: "column",

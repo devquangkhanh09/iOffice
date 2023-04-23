@@ -1,9 +1,22 @@
 import {
     View,
+    FlatList,
 } from "react-native";
 import {
     Text
 } from "@react-native-material/core";
+import {
+    useState,
+    useEffect
+} from "react";
+import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    limit,
+} from "firebase/firestore";
 import styles from "../styles/styles";
 import logStyles from "../styles/LogScreen.styles";
 
@@ -25,20 +38,46 @@ const data = [
 ];
 
 const LogScreen = () => {
+    const [activities, setActivities] = useState([]);
+
+    const db = getFirestore();
+    useEffect(() => {
+        const q = query(collection(db, "control"), orderBy("timestamp", "desc"), limit(20));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            setActivities(querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })));
+        });
+    }, []);
+
     return (
         <View style={[styles.screen, logStyles.screen]}>
             <Text variant="h3" style={styles.title}>Activity Log</Text>
-            {data.map((item) => (
-                <View key={item.id} style={logStyles.activity}>
-                    <View style={logStyles.activityTop}>
-                        <Text style={logStyles.activityTopText}>{item.user}</Text>
-                        <Text style={logStyles.activityTopText}>{item.time}</Text>
+            <Text variant="subtitle1" style={{textAlign: "center"}}>
+                20 most recent activities
+            </Text>
+
+            <FlatList
+                data={activities}
+                renderItem={({item}) => (
+                    <View key={item.id} style={logStyles.activity}>
+                        <View style={logStyles.activityTop}>
+                            <Text style={logStyles.activityTopText}>{item.user}</Text>
+                            <Text style={logStyles.activityTopText}>{item.timestamp}</Text>
+                        </View>
+                        <View style={logStyles.activityBottom}>
+                            <Text style={logStyles.activityBottomText}>{item.device}: {
+                                item.status? `turned ${item.status}`
+                                : item.mode? `mode changed to ${item.mode}`
+                                : item.threshold? `threshold changed to ${item.threshold}`
+                                : "unknown"
+                            }</Text>
+                        </View>
                     </View>
-                    <View style={logStyles.activityBottom}>
-                        <Text style={logStyles.activityBottomText}>{item.device}: {item.action}</Text>
-                    </View>
-                </View>
-            ))}
+                )}
+                keyExtractor={(item) => item.id}
+            />
         </View>
     );
 }

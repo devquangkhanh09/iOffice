@@ -1,20 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
   Image,
-  Text,
-  Switch,
   Dimensions,
-  TouchableOpacity,
 } from "react-native";
 import BottomPanel from "../components/BottomPanel";
 import SmallPanel from "../components/SmallPanel";
-import controlStyles from "../styles/Control.styles";
-
-import { getData } from "../services/asyncStorage";
-
-import { baseUrl } from "../services/client";
 
 const { width, height } = Dimensions.get("window");
 
@@ -51,14 +43,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
   },
   backgroundImage: {
     position: "absolute",
     top: 0,
     left: 0,
     width: width,
-    height: height * 0.5,
+    height: height,
   },
   controlContainer: {
     flexDirection: "row",

@@ -1,45 +1,42 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   Dimensions,
   Text,
-  Pressable,
-  Button,
 } from "react-native";
-import { Switch } from "@react-native-material/core";
+import { Icon } from "@react-native-material/core";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 
-import { baseUrl } from "../services/client";
-import { getData } from "../services/asyncStorage";
-import { AIO_KEY } from "@env";
 const { width } = Dimensions.get("window");
 
 const BottomPanel = () => {
   const [value, setValue] = useState(null);
-  const [prevalue, setprevalue] = useState(null);
+  const [preValue, setpreValue] = useState(null);
 
-  const prefixData = "metacrektal/feeds/iot-data.data-";
+  const db = getFirestore();
 
   useEffect(() => {
-    fetch(`${baseUrl}/${prefixData}temp/data`, {
-      method: "GET",
-      headers: {
-        "X-AIO-Key": AIO_KEY,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.length) {
-          setValue(data[data.length - 1].value);
+    const q = query(
+      collection(db, "data-temp"),
+      orderBy("timestamp", "desc"),
+      limit(2)
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      if (querySnapshot.size >= 1) {
+        setValue(querySnapshot.docs[0].data().value);
+        if (querySnapshot.size >= 2) {
+          setpreValue(querySnapshot.docs[1].data().value);
         }
-        if (data.length > 1){
-          setprevalue(data[data.length - 2].value);
-        }
-        else {
-          setprevalue(data[data.length - 1].value);
-        }
-      })
-      .catch((e) => console.log(e));
+      }
+    });
   }, []);
 
   return (
@@ -52,11 +49,14 @@ const BottomPanel = () => {
             fontStyle: "italic",
             fontSize: 30,
             opacity: 0.6,
-            bottom: 15,
           }}
         >
           {value}°C
         </Text>
+
+        {preValue === null || preValue === value ||
+          <Icon name={value > preValue ? "arrow-up" : "arrow-down"} size={24} color={value > preValue ? "red" : "green"} />
+        }
       </View>
     </View>
   );
@@ -87,8 +87,6 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: "#F8F8F8",
     fontSize: 16,
-    position: "relative",
-    top: 15,
     opacity: 0.6,
   },
   slider: {
