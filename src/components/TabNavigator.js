@@ -5,6 +5,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ControlScreen from "../screens/ControlScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import LogScreen from "../screens/LogScreen";
+import BarCodeScannerScreen from "../screens/BarCodeScannerScreen";
 import { Icon } from "@react-native-material/core";
 
 const Tab = createMaterialBottomTabNavigator();
@@ -54,6 +55,16 @@ const TabNavigator = () => {
             tabBarLabel: "Dashboard",
             tabBarIcon: ({ color }) => (
               <Icon name="view-dashboard" size={26} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Scanner"
+          component={BarCodeScannerScreen}
+          options={{
+            tabBarLabel: "Scanner",
+            tabBarIcon: ({ color }) => (
+              <Icon name="barcode" size={26} color={color} />
             ),
           }}
         />
