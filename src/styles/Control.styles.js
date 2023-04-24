@@ -8,6 +8,11 @@ const controlStyles = StyleSheet.create({
         alignItems: "flex-start",
         rowGap: 25,
     },
+    header: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
     tileRow: {
         flexDirection: "row",
         justifyContent: "space-between",

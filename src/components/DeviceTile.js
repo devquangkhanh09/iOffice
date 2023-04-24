@@ -28,6 +28,7 @@ const DeviceTile = ({
     id,
     type,
     icon,
+    isAuthorized
 }) => {
     const [isOn, setIsOn] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
@@ -63,7 +64,7 @@ const DeviceTile = ({
                 <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                     isOn? "On":"Off"
                 }</Text>
-                <Switch value={isOn} onValueChange={() => {
+                <Switch value={isOn} disabled={!isAuthorized} onValueChange={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {
                         user: user.email,
@@ -81,14 +82,15 @@ const DeviceTile = ({
                     });
 
                     setIsOn(!isOn);
-                }} />
+                }} 
+                />
             </View>
             {type !== 'Led' && <>
             <View style={controlStyles.switch}>
                 <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                     isAuto? "Auto":"Manual"
                 }</Text>
-                <Switch disabled={!isOn} value={isAuto} onValueChange={() => {
+                <Switch disabled={!isOn || !isAuthorized} value={isAuto} onValueChange={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {
                         user: user.email,
@@ -111,12 +113,13 @@ const DeviceTile = ({
                 value={String(threshold)}
                 onChangeText={(text) => setThreshold(Number(text))}
                 keyboardType="numeric"
-                editable={isAuto}
+                editable={isAuto && isOn && isAuthorized}
             /> 
             <Button 
                 variant="outlined" 
                 title="Save threshold" 
-                color={isOn? "white":"black"} 
+                color={isOn? "white":"black"}
+                disabled={!isAuto || !isOn || !isAuthorized} 
                 onPress={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {

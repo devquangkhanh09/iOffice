@@ -29,6 +29,7 @@ const ComplexDeviceTile = ({
     id,
     type,
     icon,
+    isAuthorized
 }) => {
     const [isOn, setIsOn] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
@@ -67,7 +68,7 @@ const ComplexDeviceTile = ({
                     <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                         isOn? "On":"Off"
                     }</Text>
-                    <Switch value={isOn} onValueChange={() => {
+                    <Switch value={isOn} disabled={!isAuthorized} onValueChange={() => {
                         const curTime = getCurrentTime();
                         updateControl(`control-${type.toLowerCase()}`, {
                             user: user.email,
@@ -106,7 +107,7 @@ const ComplexDeviceTile = ({
                         });
 
                         setIsAuto(!isAuto);
-                    }} disabled={!isOn} />
+                    }} disabled={!isOn || !isAuthorized} />
                 </View>
             </View>
 
@@ -137,7 +138,7 @@ const ComplexDeviceTile = ({
 
                         setlevelSlider(value);
                     }}
-                    disabled={!isOn || isAuto}
+                    disabled={!isOn || isAuto || !isAuthorized}
                 />
             </View>
             <TextInput
@@ -150,7 +151,7 @@ const ComplexDeviceTile = ({
                     newThreshold[0] = Number(text);
                     setThreshold(newThreshold);
                 }}
-                editable={isAuto}
+                editable={isAuto && isOn && isAuthorized}
             />
             <TextInput
                 style={controlStyles.input}
@@ -162,7 +163,7 @@ const ComplexDeviceTile = ({
                     newThreshold[1] = Number(text);
                     setThreshold(newThreshold);
                 }}
-                editable={isAuto}
+                editable={isAuto && isOn && isAuthorized}
             />
             <TextInput
                 style={controlStyles.input}
@@ -174,7 +175,7 @@ const ComplexDeviceTile = ({
                     newThreshold[2] = Number(text);
                     setThreshold(newThreshold);
                 }}
-                editable={isAuto}
+                editable={isAuto && isOn && isAuthorized}
             />
             <TextInput
                 style={controlStyles.input}
@@ -186,13 +187,14 @@ const ComplexDeviceTile = ({
                     newThreshold[3] = Number(text);
                     setThreshold(newThreshold);
                 }}
-                editable={isAuto}
+                editable={isAuto && isOn && isAuthorized}
             />
 
             <Button 
                 variant="outlined" 
                 title="Save threshold" 
-                color={isOn? "white":"black"} 
+                color={isOn? "white":"black"}
+                disabled={!isAuto || !isOn || !isAuthorized}
                 onPress={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {

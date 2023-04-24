@@ -1,9 +1,14 @@
 var express = require('express');
+var { code } = require('../qrcode');
+
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.post('/qrcode', function(req, res, next) {
+  if (req.body.code === code) {
+    res.send('success');
+  } else {
+    res.send('failure');
+  } 
 });
 
 module.exports = router;
