@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var { generateQRCode } = require('./qrcode');
+const schedule = require('node-schedule');
 
 var indexRouter = require('./routes/index');
 var { sendDataToAda, getCurrentTime } = require('./adafruitClient');
@@ -65,5 +66,12 @@ controlFeeds.forEach(feed => {
 });
 
 generateQRCode();
+
+const rule = new schedule.RecurrenceRule();
+rule.hour = 0;
+rule.minute = 0;
+rule.tz = 'Asia/Ho_Chi_Minh';
+
+schedule.scheduleJob(rule, generateQRCode);
 
 module.exports = app;

@@ -1,9 +1,10 @@
 var express = require('express');
-var { code } = require('../qrcode');
+var { getCode } = require('../qrcode');
 
 var router = express.Router();
 
 router.post('/qrcode', function(req, res, next) {
+  const code = getCode();
   if (req.body.code === code) {
     res.send('success');
   } else {
