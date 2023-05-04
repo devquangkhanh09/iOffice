@@ -9,10 +9,13 @@ import {
   limit,
   onSnapshot,
 } from "firebase/firestore";
+import { Snackbar } from "react-native-paper";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
-const SmallPanel = ({ type, icon}) => {
+const SmallPanel = ({ type, icon }) => {
   const [value, setValue] = useState(null);
   const [preValue, setpreValue] = useState(null);
+  const [visible, setVisible] = useState(false);
 
   const db = getFirestore();
 
@@ -30,6 +33,32 @@ const SmallPanel = ({ type, icon}) => {
         }
       }
     });
+
+    if (type == "Humidity" && value > 50) {
+      Toast.show({
+        type: "success",
+        text1: "⚠️ WARNING",
+        text2: "Độ ẩm vượt ngưỡng",
+      });
+    } else if (type == "Humidity" && value < 40){
+      Toast.show({
+        type: "success",
+        text1: "⚠️ WARNING",
+        text2: "Độ ẩm dưới ngưỡng",
+      });
+    } else if (type == "Light" && value < 1){
+      Toast.show({
+        type: "success",
+        text1: "WARNING",
+        text2: "Ánh sáng dưới ngưỡng",
+      });
+    } else if (type == "Light" && value > 10){
+      Toast.show({
+        type: "success",
+        text1: "WARNING",
+        text2: "Ánh sáng vượt ngưỡng",
+      });
+    }
   }, []);
 
   return (
@@ -67,9 +96,23 @@ const SmallPanel = ({ type, icon}) => {
       >
         {value}
       </Text>
-      {preValue === null || preValue === value ||
-        <Icon name={value > preValue ? "arrow-up" : "arrow-down"} size={24} color={value > preValue ? "red" : "green"} />
-      }
+      {preValue === null || preValue === value || (
+        <Icon
+          name={value > preValue ? "arrow-up" : "arrow-down"}
+          size={24}
+          color={value > preValue ? "red" : "green"}
+        />
+      )}
+
+      <Snackbar
+        visible={visible}
+        onDismiss={() => setVisible(true)}
+        style={{ backgroundColor: "blue" }}
+      >
+        <View>
+          <Text>Hey there! I'm ssda Snackbar sdsdds.</Text>
+        </View>
+      </Snackbar>
     </View>
   );
 };
