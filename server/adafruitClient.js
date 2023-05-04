@@ -56,7 +56,7 @@ aioSensor.on('message', async function (topic, message) {
       else if (val < temp_threshold[3]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '75');
       else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '100');
   }
-  console.log(data);
+  console.log(`Send data to Firebase: ${data}`);
 })
 
 async function sendDataToAda({
@@ -75,7 +75,7 @@ queryLog.onSnapshot(snapshot => {
   snapshot.docChanges().forEach(change => {
     if (change.type === 'added') {
       const log = change.doc.data();
-      console.log(log);
+      console.log(`Receive from Firebase ${logFeed}, data = ${log}`);
       if (log.mode === "auto"){
         if (log.device === 'fan') {
           fan_automode = 1;

@@ -54,41 +54,6 @@ const LogScreen = () => {
       );
     });
   }, []);
-    // return (
-    //   <View style={[styles.screen, logStyles.screen]}>
-    //     <Text variant="h3" style={styles.title}>
-    //       History
-    //     </Text>
-    //     <Text variant="subtitle1" style={{ textAlign: "center" }}>
-    //       20 most recent activities
-    //     </Text>
-
-    //     <FlatList
-    //       data={activities}
-    //       renderItem={({ item }) => (
-    //         <View key={item.id} style={logStyles.activity}>
-    //           <View style={logStyles.activityTop}>
-    //             <Text style={logStyles.activityTopText}>{item.user}</Text>
-    //             <Text style={logStyles.activityTopText}>{item.timestamp}</Text>
-    //           </View>
-    //           <View style={logStyles.activityBottom}>
-    //             <Text style={logStyles.activityBottomText}>
-    //               {item.device}:{" "}
-    //               {item.status
-    //                 ? `turned ${item.status}`
-    //                 : item.mode
-    //                 ? `mode changed to ${item.mode}`
-    //                 : item.threshold
-    //                 ? `threshold changed to ${item.threshold}`
-    //                 : "unknown"}
-    //             </Text>
-    //           </View>
-    //         </View>
-    //       )}
-    //       keyExtractor={(item) => item.id}
-    //     />
-    //   </View>
-    // );
 
   return (
     <View style={styles.container}>
@@ -111,11 +76,13 @@ const LogScreen = () => {
             device={item.device}
             activity={
               item.status
-                ? `turned ${item.status}`
+                ? `status changed`
                 : item.mode
                 ? `mode changed`
                 : item.threshold
                 ? `threshold changed`
+                : item.level !== undefined
+                ? `level changed`
                 : "unknown"
             }
             user={item.user}
@@ -126,7 +93,9 @@ const LogScreen = () => {
                 : item.mode
                 ? item.mode
                 : item.threshold
-                ? item.threshold[item.threshold.length - 1]
+                ? item.threshold.join(", ")
+                : item.level !== undefined
+                ? item.level
                 : "unknown"
             }
           ></LogButton>

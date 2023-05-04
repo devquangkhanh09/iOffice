@@ -3,6 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { Button } from '@react-native-material/core';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { storeData } from '../services/asyncStorage';
+import { FETCH_URL } from '@env';
 
 export default function BarCodeScannerScreen() {
     const [hasPermission, setHasPermission] = useState(null);
@@ -19,7 +20,7 @@ export default function BarCodeScannerScreen() {
 
     const handleBarCodeScanned = async ({ type, data }) => {
         setScanned(true);
-        const res = await fetch('https://428e-113-161-73-48.ngrok-free.app/api/qrcode', {
+        const res = await fetch(`${FETCH_URL}/api/qrcode`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",

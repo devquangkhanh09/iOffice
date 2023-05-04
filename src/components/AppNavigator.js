@@ -1,5 +1,5 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
     getData,
     storeData
@@ -7,16 +7,18 @@ import {
 import LoadingScreen from "../screens/LoadingScreen";
 import CustomDrawerContent from "./CustomDrawerContent";
 import TabNavigator from "./TabNavigator";
+import { FETCH_URL } from '@env';
 
 const Drawer = createDrawerNavigator();
 
 const AppNavigator = ({ onSignOut }) => {
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
             try {
                 const code = await getData('code');
-                const res = await fetch('https://428e-113-161-73-48.ngrok-free.app/api/qrcode', {
+                const res = await fetch(`${FETCH_URL}/api/qrcode`, {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
@@ -28,6 +30,8 @@ const AppNavigator = ({ onSignOut }) => {
                 const data = await res.text();
                 if (data === 'success') await storeData('status', 'at office');
                 else await storeData('status', 'not at office');
+
+                setIsLoading(false);
             } catch (error) {
                 console.log(error.message);
             }
@@ -36,6 +40,7 @@ const AppNavigator = ({ onSignOut }) => {
     }, [])
 
     return (
+        isLoading ? <LoadingScreen /> :
         <Drawer.Navigator
             drawerContent={(props) => <CustomDrawerContent {...props} onSignOut={onSignOut} />}
         >

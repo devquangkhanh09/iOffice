@@ -55,7 +55,7 @@ controlFeeds.forEach(feed => {
           if (log.status === 'on') value = 1;
           else value = 0;
         }
-        console.log(log.status, feed);
+        console.log(`Receive from Firebase ${feed}, value = ${value}`);
         sendDataToAda({
           feedkey: `iot-control.${feed}`,
           value,
