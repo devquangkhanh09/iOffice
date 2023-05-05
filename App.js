@@ -14,7 +14,7 @@ import { storeData, getData, removeData } from "./src/services/asyncStorage";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { BaseToast } from "react-native-toast-message/lib/src/components/BaseToast";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -26,11 +26,7 @@ export default function App() {
   };
 
   const toastConfig = {
-    /*
-      Overwrite 'success' type,
-      by modifying the existing `BaseToast` component
-    */
-    success: (props) => (
+    warning: (props) => (
       <BaseToast
         {...props}
         style={{
@@ -84,7 +80,7 @@ export default function App() {
           )}
         </NavigationContainer>
       </IconComponentProvider>
-      <Toast config={toastConfig} visibilityTime={100000}/>
+      <Toast config={toastConfig} visibilityTime={10000}/>
     </SafeAreaProvider>
   );
 }

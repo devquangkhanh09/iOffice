@@ -14,7 +14,6 @@ import {
   limit,
   onSnapshot,
 } from "firebase/firestore";
-import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 const { width } = Dimensions.get("window");
 
@@ -38,19 +37,6 @@ const BottomPanel = () => {
         }
       }
     });
-    if (value > 30) {
-      Toast.show({
-        type: "success",
-        text1: "⚠️ WARNING",
-        text2: "Nhiệt độ vượt ngưỡng",
-      });
-    } else if (value < 25){
-      Toast.show({
-        type: "success",
-        text1: "⚠️ WARNING",
-        text2: "Nhiệt độ dưới ngưỡng",
-      });
-    }
 
   }, []);
 

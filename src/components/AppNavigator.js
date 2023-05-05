@@ -8,13 +8,68 @@ import LoadingScreen from "../screens/LoadingScreen";
 import CustomDrawerContent from "./CustomDrawerContent";
 import TabNavigator from "./TabNavigator";
 import { FETCH_URL } from '@env';
+import { Toast } from "react-native-toast-message/lib/src/Toast";
+import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    limit,
+    onSnapshot,
+} from "firebase/firestore";
 
 const Drawer = createDrawerNavigator();
 
 const AppNavigator = ({ onSignOut }) => {
     const [isLoading, setIsLoading] = useState(true);
 
+    const db = getFirestore();
+
     useEffect(() => {
+        const qTemp = query(
+            collection(db, "data-temp"),
+            orderBy("timestamp", "desc"),
+            limit(1)
+        );
+
+        const unsubscribeTemp = onSnapshot(qTemp, (querySnapshot) => {
+            if (querySnapshot.docs[0].data().value > 30) {
+                Toast.show({
+                    type: "warning",
+                    text1: "⚠️ WARNING",
+                    text2: "Nhiệt độ vượt ngưỡng",
+                });
+            } else if (querySnapshot.docs[0].data().value < 20) {
+                Toast.show({
+                    type: "warning",
+                    text1: "⚠️ WARNING",
+                    text2: "Nhiệt độ dưới ngưỡng",
+                });
+            }
+        });
+
+        const qHumd = query(
+            collection(db, "data-humd"),
+            orderBy("timestamp", "desc"),
+            limit(1)
+        );
+
+        const unsubscribeHumd = onSnapshot(qHumd, (querySnapshot) => {
+            if (querySnapshot.docs[0].data().value > 80) {
+                Toast.show({
+                    type: "warning",
+                    text1: "⚠️ WARNING",
+                    text2: "Độ ẩm vượt ngưỡng",
+                });
+            } else if (querySnapshot.docs[0].data().value < 30) {
+                Toast.show({
+                    type: "warning",
+                    text1: "⚠️ WARNING",
+                    text2: "Độ ẩm dưới ngưỡng",
+                });
+            }
+        });
+
         (async () => {
             try {
                 const code = await getData('code');

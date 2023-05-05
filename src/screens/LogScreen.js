@@ -10,30 +10,8 @@ import {
 } from "firebase/firestore";
 import styles from "../styles/styles";
 import logStyles from "../styles/LogScreen.styles";
-import React, { Component, useState, useEffect } from "react";
-import SearchBar from "../components/SearchBar";
-import SelectionBar from "../components/SelectionBar";
-import DatePicker from "../components/DatePicker";
+import React, { useState, useEffect } from "react";
 import LogButton from "../components/LogButton";
-
-const { width, height } = Dimensions.get("window");
-
-const data = [
-  {
-    id: 1,
-    time: "15:30, 01/04/2023",
-    user: "Steve",
-    device: "Fan",
-    action: "on",
-  },
-  {
-    id: 2,
-    time: "17:00, 01/04/2023",
-    user: "Steve",
-    device: "Light bulb",
-    action: "off",
-  },
-];
 
 const LogScreen = () => {
   const [activities, setActivities] = useState([]);
@@ -65,9 +43,7 @@ const LogScreen = () => {
           20 most recent activities
         </Text>
       </View>
-      <SearchBar style={logStyles.SearchBar}></SearchBar>
-      {/* <SelectionBar style={logStyles.ThreeTabs}></SelectionBar> */}
-      <DatePicker style={logStyles.materialIconTextbox}></DatePicker>
+
       <FlatList
         data={activities}
         renderItem={({ item }) => (
