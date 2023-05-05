@@ -8,6 +8,7 @@ import {
   onSnapshot,
   limit,
 } from "firebase/firestore";
+import DropDownPicker from 'react-native-dropdown-picker';
 import styles from "../styles/styles";
 import logStyles from "../styles/LogScreen.styles";
 import React, { useState, useEffect } from "react";
@@ -15,6 +16,14 @@ import LogButton from "../components/LogButton";
 
 const LogScreen = () => {
   const [activities, setActivities] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('all');
+  const [items, setItems] = useState([
+    {label: 'All', value: 'all'},
+    {label: 'Led', value: 'led'},
+    {label: 'Fan', value: 'fan'},
+    {label: 'Relay', value: 'relay'},
+  ]);
 
   const db = getFirestore();
   useEffect(() => {
@@ -44,8 +53,22 @@ const LogScreen = () => {
         </Text>
       </View>
 
+      <DropDownPicker
+        open={open}
+        value={value}
+        items={items}
+        setOpen={setOpen}
+        setValue={setValue}
+        setItems={setItems}
+      />
+
       <FlatList
-        data={activities}
+        data={activities.filter((item) => {
+          if (value === 'all') {
+            return true;
+          }
+          return item.device === value;
+        })}
         renderItem={({ item }) => (
           <LogButton
             style={logStyles.LogButton}
