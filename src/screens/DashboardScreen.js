@@ -33,6 +33,7 @@ const chartConfig = {
 const DashboardScreen = () => {
     const [type, setType] = useState(null);
     const [typeC, setTypeC] = useState(null);
+    const [chooseType, setChooseType] = useState(null);
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
     const [data, setData] = useState({
@@ -92,7 +93,8 @@ const DashboardScreen = () => {
                 <Pressable 
                     onPress={() => {
                         setType('temp');  
-                        setTypeC(null);                      
+                        setTypeC(null); 
+                        setChooseType(true);                     
                     }}
                     style={[dashboardStyles.selection, type === "temp" && dashboardStyles.selectionSelected]}
                 >
@@ -105,6 +107,7 @@ const DashboardScreen = () => {
                     onPress={() => {
                         setType('humd');
                         setTypeC(null);  
+                        setChooseType(true);
                     }}
                     style={[dashboardStyles.selection, type === "humd" && dashboardStyles.selectionSelected]}
                 >
@@ -113,7 +116,7 @@ const DashboardScreen = () => {
                     </Text>
                 </Pressable>
             </View>
-            <Button title="Find" onPress={async () => {
+            <Button disabled={!chooseType} title="Find" onPress={async () => {
                 var ref = type === "temp" ? tempRef : humdRef
                 var start = convert(date);
                 var end = convert(new Date(date.getTime() + (24 * 60 * 60 * 1000)));
