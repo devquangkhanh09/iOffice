@@ -33,6 +33,7 @@ const chartConfig = {
 const DashboardScreen = () => {
     const [type, setType] = useState(null);
     const [typeC, setTypeC] = useState(null);
+    const [noData, setNoData] = useState(null);
     const [chooseType, setChooseType] = useState(null);
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
@@ -77,6 +78,7 @@ const DashboardScreen = () => {
                 <Button title='Choose Date' onPress={() => {
                     setShow(true);
                     setTypeC(null);
+                    setNoData(null);
                 }}></Button>
                 {show && (
                     <DateTimePicker
@@ -127,30 +129,37 @@ const DashboardScreen = () => {
                 var count = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 var dt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 var res = [];
-                querySnapshot.forEach((doc) => {
-                    const value = parseFloat(doc.data()["value"]);
-                    const idx = parseInt(doc.data()["timestamp"].slice(11, 14));
-                    if (idx <= 17 && idx >= 7){
-                        if (dtMax[idx - 7] === null) dtMax[idx - 7] = value;
-                        if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
-                        if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
-                        if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
-                        if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
-                        count[idx - 7]++;
-                        dt[idx - 7] += value;
+                if (querySnapshot.size > 0){
+                    querySnapshot.forEach((doc) => {
+                        const value = parseFloat(doc.data()["value"]);
+                        const idx = parseInt(doc.data()["timestamp"].slice(11, 14));
+                        if (idx <= 17 && idx >= 7){
+                            if (dtMax[idx - 7] === null) dtMax[idx - 7] = value;
+                            if (dtMax[idx - 7] < value) dtMax[idx - 7] = value;
+                            if (dtMin[idx - 7] === null) dtMin[idx - 7] = value;
+                            if (dtMin[idx - 7] > value) dtMin[idx - 7] = value;
+                            if (dtMin[idx - 7] === 0) dtMin[idx - 7] = value;
+                            count[idx - 7]++;
+                            dt[idx - 7] += value;
+                        }
+                    });
+                    for (let i = 0; i < dt.length; i++) {
+                        var quotient;
+                        if (count[i] === 0) quotient = 0;
+                        else quotient = dt[i] / count[i];
+                        res.push(quotient);
                     }
-                });
-                for (let i = 0; i < dt.length; i++) {
-                    const quotient = dt[i] / count[i];
-                    res.push(quotient);
+                    setData(pre => {
+                        pre.datasets[0].data = dtMax;
+                        pre.datasets[1].data = dtMin;
+                        pre.datasets[2].data = res;
+                        return pre;
+                    })
+                    setTypeC(true);
                 }
-                setData(pre => {
-                    pre.datasets[0].data = dtMax;
-                    pre.datasets[1].data = dtMin;
-                    pre.datasets[2].data = res;
-                    return pre;
-                })
-                setTypeC(true);
+                else {
+                    setNoData(true);
+                }
             }}/>
             
             {typeC !== null ? (
@@ -162,8 +171,9 @@ const DashboardScreen = () => {
                 style={dashboardStyles.chart}
             />
             ) : null}
-
-            
+            {noData !== null ? (
+                <Text>Sorry, there is no data available.</Text>
+            ) : null}           
         </View>
     );
 }
