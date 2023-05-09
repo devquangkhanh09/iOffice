@@ -46,7 +46,7 @@ aioSensor.on('message', async function (topic, message) {
   if (key[0] === 'data-humd' && relayDetail.mode === 'auto'){
     let status;
 
-    if (val < humd_threshold) {
+    if (val < relayDetail.threshold) {
       aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '1');
       status = 'on';
     }
