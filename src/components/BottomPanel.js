@@ -55,7 +55,7 @@ const BottomPanel = () => {
           {value}°C
         </Text>
 
-        {preValue === null || preValue === value ||
+        {preValue === null ||
           <Icon name={value > preValue ? "arrow-up" : "arrow-down"} size={24} color={value > preValue ? "red" : "green"} />
         }
       </View>

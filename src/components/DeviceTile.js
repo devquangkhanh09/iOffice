@@ -64,7 +64,7 @@ const DeviceTile = ({
                 <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                     isOn? "On":"Off"
                 }</Text>
-                <Switch value={isOn} disabled={!isAuthorized} onValueChange={() => {
+                <Switch value={isOn} disabled={!isAuthorized || (type !== "Led" && isAuto)} onValueChange={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {
                         user: user.email,
@@ -90,7 +90,7 @@ const DeviceTile = ({
                 <Text style={isOn? controlStyles.fontOn:controlStyles.fontOff}>{
                     isAuto? "Auto":"Manual"
                 }</Text>
-                <Switch disabled={!isOn || !isAuthorized} value={isAuto} onValueChange={() => {
+                <Switch disabled={!isAuthorized} value={isAuto} onValueChange={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {
                         user: user.email,
@@ -113,13 +113,13 @@ const DeviceTile = ({
                 value={String(threshold)}
                 onChangeText={(text) => setThreshold(Number(text))}
                 keyboardType="numeric"
-                editable={isAuto && isOn && isAuthorized}
+                editable={isAuto && isAuthorized}
             /> 
             <Button 
                 variant="outlined" 
                 title="Save threshold" 
                 color={isOn? "white":"black"}
-                disabled={!isAuto || !isOn || !isAuthorized} 
+                disabled={!isAuto || !isAuthorized} 
                 onPress={() => {
                     const curTime = getCurrentTime();
                     updateControl(`control-${type.toLowerCase()}`, {

@@ -68,7 +68,7 @@ const SmallPanel = ({ type, icon }) => {
       >
         {value}
       </Text>
-      {preValue === null || preValue === value || (
+      {preValue === null || (
         <Icon
           name={value > preValue ? "arrow-up" : "arrow-down"}
           size={24}

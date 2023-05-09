@@ -13,10 +13,8 @@ aioSensor.subscribe(`${process.env.AIO_USERNAME}/groups/${process.env.AIO_GROUP_
   }
 })
 
-var temp_threshold = [20, 23, 25, 27];
-var humd_threshold = 50;
-var fan_automode = 0;
-var humd_automode = 0;
+var fanDetail;
+var relayDetail;
 
 const getCurrentTime = () => {
   const date = new Date();
@@ -38,25 +36,64 @@ aioSensor.on('message', async function (topic, message) {
   const key = Object.keys(payload.feeds);
   const value = Object.values(payload.feeds);
   const data = {
-    feed: key[0],
     value: value[0],
     timestamp: getCurrentTime()
   };
-  await sendDataToFirebase(data);
+  await sendDataToFirebase(key[0], data);
 
   val = parseFloat(data.value);
-  if (data.feed === 'data-humd' && humd_automode === 1){
-    if (val < humd_threshold) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '1');
-    else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '0');
+
+  if (key[0] === 'data-humd' && relayDetail.mode === 'auto'){
+    let status;
+
+    if (val < humd_threshold) {
+      aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '1');
+      status = 'on';
+    }
+    else {
+      aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_RELAY}`, '0');
+      status = 'off';
+    }
+
+    await sendDataToFirebase('control-relay', {
+      ...relayDetail,
+      status,
+      timestamp: getCurrentTime()
+    });
+
+    await sendDataToFirebase('control', {
+      device: 'relay',
+      user: 'auto',
+      status,
+      timestamp: getCurrentTime()
+    });
+
   }
-  else if (data.feed === 'data-temp' && fan_automode === 1){
-    if (val < temp_threshold[0]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '0');
-      else if (val < temp_threshold[1]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '25');
-      else if (val < temp_threshold[2]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '50');
-      else if (val < temp_threshold[3]) aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '75');
-      else aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, '100');
+  else if (key[0] === 'data-temp' && fanDetail.mode === 'auto'){
+    let level;
+
+    if (val < fanDetail.threshold[0]) level = 0;
+    else if (val < fanDetail.threshold[1]) level = 25;
+    else if (val < fanDetail.threshold[2]) level = 50;
+    else if (val < fanDetail.threshold[3]) level = 75;
+    else level = 100;
+      
+    aioControl.publish(`${process.env.AIO_USERNAME}/feeds/${process.env.AIO_FAN}`, String(level));
+    await sendDataToFirebase('control-fan', {
+      ...fanDetail,
+      level: level / 25,
+      timestamp: getCurrentTime()
+    });
+
+    await sendDataToFirebase('control', {
+      device: 'fan',
+      user: 'auto',
+      level: level / 25,
+      timestamp: getCurrentTime()
+    });
+
   }
-  console.log(`Send data to Firebase: ${data}`);
+  console.log(`Send data to Firebase: ${JSON.stringify(data)}`);
 })
 
 async function sendDataToAda({
@@ -68,42 +105,18 @@ async function sendDataToAda({
 }
 
 const db = admin.firestore();
-const fanFeed = 'control-fan';
-const fanRef = db.collection(fanFeed);
-const fanQueryLog = fanRef.orderBy('timestamp','desc').limit(1);
-fanQueryLog.onSnapshot(snapshot => {
-  snapshot.docChanges().forEach(change => {
-    if (change.type === 'added') {
-      const log = change.doc.data();
-      console.log(`Receive from Firebase ${fanFeed}`);
-      console.log(log);
-      if (log.status !== undefined)
-        if (log.status === 'off') fan_automode = 0;
-      if (log.mode !== undefined) 
-        if (log.mode === 'auto') fan_automode = 1; else fan_automode = 0;
-      if (log.threshold !== undefined)
-        temp_threshold = log.threshold;      
-    }
-  });
+const fanCollection = 'control-fan';
+const fanRef = db.collection(fanCollection);
+const fanQuery = fanRef.orderBy('timestamp','desc').limit(1);
+fanQuery.onSnapshot(snapshot => {
+  fanDetail = snapshot.docs[0].data();
 });
 
-const humdFeed = 'control-relay';
-const humdRef = db.collection(humdFeed);
-const humdQueryLog = humdRef.orderBy('timestamp','desc').limit(1);
-humdQueryLog.onSnapshot(snapshot => {
-  snapshot.docChanges().forEach(change => {
-    if (change.type === 'added') {
-      const log = change.doc.data();
-      console.log(`Receive from Firebase ${humdFeed}`);
-      console.log(log);
-      if (log.status !== undefined)
-        if (log.status === 'off') humd_automode = 0;
-      if (log.mode !== undefined) 
-        if (log.mode === 'auto') humd_automode = 1; else humd_automode = 0;
-      if (log.threshold !== undefined)
-        humd_automode = log.threshold;      
-    }
-  });
+const relayCollection = 'control-relay';
+const relayRef = db.collection(relayCollection);
+const relayQuery = relayRef.orderBy('timestamp','desc').limit(1);
+relayQuery.onSnapshot(snapshot => {
+  relayDetail = snapshot.docs[0].data();
 });
 
 module.exports = {

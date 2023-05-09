@@ -6,18 +6,14 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-const sendDataToFirebase = async ({
+const sendDataToFirebase = async (
   feed,
-  value,
-  timestamp
-}) => {
+  data
+) => {
   const db = admin.firestore();
   const colRef = db.collection(feed);
   try {
-    const docRef = await colRef.add({
-      value,
-      timestamp
-    });
+    const docRef = await colRef.add(data);
 
     console.log(`Document written in ${feed} with ID: ${docRef.id}`);
   } catch (err) {

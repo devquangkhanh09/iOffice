@@ -92,7 +92,7 @@ const LogScreen = () => {
                 : item.mode
                 ? item.mode
                 : item.threshold
-                ? item.threshold.join(", ")
+                ? (typeof item.threshold === "object"? item.threshold.join(", ") : item.threshold)
                 : item.level !== undefined
                 ? item.level
                 : "unknown"
