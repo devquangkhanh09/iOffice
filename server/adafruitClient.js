@@ -89,7 +89,7 @@ fanQueryLog.onSnapshot(snapshot => {
 
 const humdFeed = 'control-relay';
 const humdRef = db.collection(humdFeed);
-const humdQueryLog = humdRef.orderBy('timestamp').limit(1);
+const humdQueryLog = humdRef.orderBy('timestamp','desc').limit(1);
 humdQueryLog.onSnapshot(snapshot => {
   snapshot.docChanges().forEach(change => {
     if (change.type === 'added') {
