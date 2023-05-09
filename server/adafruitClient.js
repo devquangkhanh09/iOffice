@@ -68,41 +68,43 @@ async function sendDataToAda({
 }
 
 const db = admin.firestore();
-const logFeed = 'control';
-const logRef = db.collection(logFeed);
-const queryLog = logRef.where('timestamp', '>=', curTime);
-queryLog.onSnapshot(snapshot => {
+const fanFeed = 'control-fan';
+const fanRef = db.collection(fanFeed);
+const fanQueryLog = fanRef.orderBy('timestamp','desc').limit(1);
+fanQueryLog.onSnapshot(snapshot => {
   snapshot.docChanges().forEach(change => {
     if (change.type === 'added') {
       const log = change.doc.data();
-      console.log(`Receive from Firebase ${logFeed}, data = ${log}`);
-      if (log.mode === "auto"){
-        if (log.device === 'fan') {
-          fan_automode = 1;
-        }
-        else if (log.device === 'relay') {
-          humd_automode = 1;
-        }
-      }
-      else if (log.mode === 'manual'){
-        if (log.device === 'fan') {
-          fan_automode = 0;
-        }
-        else if (log.device === 'relay') {
-          humd_automode = 0;
-        }
-      }
-      else {
-        if (log.device === 'fan') {
-          temp_threshold = log.threshold;
-        }
-        else if (log.device === 'relay') {
-          humd_threshold = log.threshold;
-        }
-      }
+      console.log(`Receive from Firebase ${fanFeed}`);
+      console.log(log);
+      if (log.status !== undefined)
+        if (log.status === 'off') fan_automode = 0;
+      if (log.mode !== undefined) 
+        if (log.mode === 'auto') fan_automode = 1; else fan_automode = 0;
+      if (log.threshold !== undefined)
+        temp_threshold = log.threshold;      
     }
   });
-})
+});
+
+const humdFeed = 'control-relay';
+const humdRef = db.collection(humdFeed);
+const humdQueryLog = humdRef.orderBy('timestamp').limit(1);
+humdQueryLog.onSnapshot(snapshot => {
+  snapshot.docChanges().forEach(change => {
+    if (change.type === 'added') {
+      const log = change.doc.data();
+      console.log(`Receive from Firebase ${humdFeed}`);
+      console.log(log);
+      if (log.status !== undefined)
+        if (log.status === 'off') humd_automode = 0;
+      if (log.mode !== undefined) 
+        if (log.mode === 'auto') humd_automode = 1; else humd_automode = 0;
+      if (log.threshold !== undefined)
+        humd_automode = log.threshold;      
+    }
+  });
+});
 
 module.exports = {
   sendDataToAda,
