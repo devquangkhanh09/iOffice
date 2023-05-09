@@ -9,7 +9,7 @@ const dashboardStyles = StyleSheet.create({
         rowGap: 15,
     },
     selectionRow: {
-        height: "5%",
+        height: 40,
         flexDirection: "row",
         borderWidth: 1,
         borderColor: "#4287f5",

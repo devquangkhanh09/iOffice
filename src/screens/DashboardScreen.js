@@ -3,6 +3,7 @@ import {
     Pressable,
     Button,
     Platform,
+    ScrollView,
 } from "react-native";
 import {
     Text
@@ -33,7 +34,7 @@ const chartConfig = {
 const DashboardScreen = () => {
     const [type, setType] = useState(null);
     const [typeC, setTypeC] = useState(null);
-    const [noData, setNoData] = useState(null);
+    const [noData, setNoData] = useState(false);
     const [chooseType, setChooseType] = useState(null);
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
@@ -71,14 +72,14 @@ const DashboardScreen = () => {
     }
 
     return (
+        <ScrollView>
         <View style={[styles.screen, dashboardStyles.screen]}>
             <Text variant="h3" style={styles.title}>Dashboard</Text>
-            <Text style={{fontWeight:'bold', fontSize: 20}}>{'Choosen date:' + date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()}</Text>
+            <Text style={{fontWeight:'bold', fontSize: 20}}>{'Chosen date:' + date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()}</Text>
             <View style = {{margin: 20}}>
                 <Button title='Choose Date' onPress={() => {
                     setShow(true);
                     setTypeC(null);
-                    setNoData(null);
                 }}></Button>
                 {show && (
                     <DateTimePicker
@@ -155,14 +156,17 @@ const DashboardScreen = () => {
                         pre.datasets[2].data = res;
                         return pre;
                     })
-                    setTypeC(true);
+                    setNoData(false);
                 }
                 else {
                     setNoData(true);
                 }
+                setTypeC(true);
             }}/>
             
-            {typeC !== null ? (
+            {typeC !== null ? (noData ? (
+                <Text>Sorry, there is no data available.</Text>
+            ) : (
             <LineChart
                 data={data}
                 width={Dimensions.get("window").width - 50}
@@ -170,11 +174,9 @@ const DashboardScreen = () => {
                 chartConfig={chartConfig}
                 style={dashboardStyles.chart}
             />
-            ) : null}
-            {noData !== null ? (
-                <Text>Sorry, there is no data available.</Text>
-            ) : null}           
+            )) : null}         
         </View>
+        </ScrollView>
     );
 }
 
